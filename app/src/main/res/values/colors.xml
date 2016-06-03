@@ -7,4 +7,11 @@
     <color name="colorLogoSelfTour">#FFB000</color>
     <color name="colorLogoSelfTourPrimary">#ff9d00</color>
     <color name="colorBotonMain">#45adfc</color>
+
+    <color name="colorPrimary2">#125688</color>
+    <color name="colorPrimaryDark2">#125688</color>
+    <color name="textColorPrimary">#FFFFFF</color>
+    <color name="windowBackground">#FFFFFF</color>
+    <color name="navigationBarColor">#000000</color>
+    <color name="colorAccent2">#c8e8ff</color>
 </resources>
