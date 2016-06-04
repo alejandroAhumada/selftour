@@ -9,9 +9,11 @@
     <RelativeLayout
         android:id="@+id/carousel"
         android:layout_width="match_parent"
-        android:layout_height="400dp"
-        android:layout_marginBottom="25dp"
-        android:layout_marginTop="5dp">
+        android:layout_height="150dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginBottom="10dp"
+        android:layout_marginTop="80dp">
 
         <com.synnapps.carouselview.CarouselView
             android:id="@+id/carouselViewOneFragment"
@@ -26,5 +28,7 @@
             app:strokeWidth="1dp"/>
 
     </RelativeLayout>
+
+
 
 </RelativeLayout>
