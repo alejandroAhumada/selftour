@@ -1,5 +1,6 @@
 package cl.selftourhamburger.Activity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
@@ -130,6 +131,8 @@ public class Activity_Pantalla_Principal extends AppCompatActivity
 
         } else if (id == cl.selftourhamburger.R.id.nav_send) {
 
+            Intent intent = new Intent(Activity_Pantalla_Principal.this, Activity_Login_Signin.class);
+            startActivity(intent);
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(cl.selftourhamburger.R.id.drawer_layout);
