@@ -3,14 +3,28 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".Fragment.OneFragment">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="one"
-        android:textSize="40dp"
-        android:textStyle="bold"
-        android:layout_centerInParent="true"/>
+    <RelativeLayout
+        android:id="@+id/carousel"
+        android:layout_width="match_parent"
+        android:layout_height="250dp"
+        android:layout_marginBottom="25dp"
+        android:layout_marginTop="5dp">
+
+        <com.synnapps.carouselview.CarouselView
+            android:id="@+id/carouselViewOneFragment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            app:fillColor="#FFFFFFFF"
+            app:pageColor="#00000000"
+            app:radius="6dp"
+            app:slideInterval="3000"
+            app:strokeColor="@color/colorLogoSelfTour"
+            app:strokeWidth="1dp"/>
+
+    </RelativeLayout>
 
 </RelativeLayout>

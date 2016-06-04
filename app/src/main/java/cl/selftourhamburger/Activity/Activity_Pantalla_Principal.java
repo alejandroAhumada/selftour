@@ -1,16 +1,13 @@
 package cl.selftourhamburger.Activity;
 
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
+import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.view.ViewPager;
-import android.view.View;
-import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
+import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
@@ -21,6 +18,8 @@ import android.view.MenuItem;
 import java.util.ArrayList;
 import java.util.List;
 
+import cl.selftourhamburger.Fragment.FiveFragment;
+import cl.selftourhamburger.Fragment.FourFragment;
 import cl.selftourhamburger.Fragment.OneFragment;
 import cl.selftourhamburger.Fragment.ThreeFragment;
 import cl.selftourhamburger.Fragment.TwoFragment;
@@ -33,9 +32,11 @@ public class Activity_Pantalla_Principal extends AppCompatActivity
     private TabLayout tabLayout;
     private ViewPager viewPager;
     private int[] tabIcons = {
-            R.drawable.ic_menu_camera,
-            R.drawable.ic_menu_share,
-            R.drawable.ic_menu_manage
+            R.mipmap.ic_home_white_24dp,
+            R.mipmap.ic_map_white_24dp,
+            R.mipmap.ic_place_white_24dp,
+            R.mipmap.ic_local_offer_white_24dp,
+            R.mipmap.ic_sentiment_very_satisfied_white_24dp
     };
 
     @Override
@@ -140,13 +141,17 @@ public class Activity_Pantalla_Principal extends AppCompatActivity
         tabLayout.getTabAt(0).setIcon(tabIcons[0]);
         tabLayout.getTabAt(1).setIcon(tabIcons[1]);
         tabLayout.getTabAt(2).setIcon(tabIcons[2]);
+        tabLayout.getTabAt(3).setIcon(tabIcons[3]);
+        tabLayout.getTabAt(4).setIcon(tabIcons[4]);
     }
 
     private void setupViewPager(ViewPager viewPager) {
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
-        adapter.addFrag(new OneFragment(), "ONE");
-        adapter.addFrag(new TwoFragment(), "TWO");
-        adapter.addFrag(new ThreeFragment(), "THREE");
+        adapter.addFrag(new OneFragment(), "Inicio");
+        adapter.addFrag(new TwoFragment(), "Modo Libre");
+        adapter.addFrag(new ThreeFragment(), "Puntos de Interes");
+        adapter.addFrag(new FourFragment(), "Eventos");
+        adapter.addFrag(new FiveFragment(), "Descubre");
         viewPager.setAdapter(adapter);
     }
 
