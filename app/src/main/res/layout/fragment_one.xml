@@ -9,23 +9,36 @@
     <RelativeLayout
         android:id="@+id/carousel"
         android:layout_width="match_parent"
-        android:layout_height="150dp"
+        android:layout_height="match_parent"
         android:layout_marginRight="10dp"
         android:layout_marginLeft="10dp"
         android:layout_marginBottom="10dp"
         android:layout_marginTop="80dp">
 
-        <com.synnapps.carouselview.CarouselView
-            android:id="@+id/carouselViewOneFragment"
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/recycler_view"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            app:fillColor="#FFFFFFFF"
-            app:pageColor="#00000000"
-            app:radius="6dp"
-            app:slideInterval="3000"
-            app:strokeColor="@color/colorLogoSelfTour"
-            app:strokeWidth="1dp"/>
+            android:layout_height="match_parent"/>
+
+        <com.bartoszlipinski.recyclerviewheader2.RecyclerViewHeader
+            android:id="@+id/header"
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
+            android:layout_gravity="center_horizontal|top">
+
+            <com.synnapps.carouselview.CarouselView
+                android:id="@+id/carouselViewOneFragment"
+                android:layout_width="match_parent"
+                android:layout_height="150dp"
+                android:layout_marginBottom="10dp"
+                app:fillColor="#FFFFFFFF"
+                app:pageColor="#00000000"
+                app:radius="6dp"
+                app:slideInterval="3000"
+                app:strokeColor="@color/colorLogoSelfTour"
+                app:strokeWidth="1dp"/>
+
+        </com.bartoszlipinski.recyclerviewheader2.RecyclerViewHeader>
 
     </RelativeLayout>
 

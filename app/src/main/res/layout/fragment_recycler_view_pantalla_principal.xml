@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <RelativeLayout
+        android:id="@+id/LytRecycler"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:layout_marginBottom="5dp"
+        android:background="@color/colorLogoSelfTour">
+
+        <RelativeLayout
+            android:id="@+id/LytimageRecycler"
+            android:layout_width="80dp"
+            android:layout_height="80dp">
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/cajon3" />
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/resumenRecorrido"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_toRightOf="@+id/LytimageRecycler">
+
+            <TextView
+                android:id="@+id/textoresumenRecorrido"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:text="Texto Resumen de Recorrido"
+                android:textAlignment="center" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/inferiorIcon"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_below="@+id/resumenRecorrido"
+            android:layout_toRightOf="@+id/LytimageRecycler">
+
+            <ImageView
+                android:id="@+id/iconLike"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginLeft="40dp"
+                android:background="@mipmap/ic_favorite_white_24dp" />
+
+            <TextView
+                android:id="@+id/cantLike"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:layout_centerHorizontal="true"
+                android:layout_centerVertical="true"
+                android:layout_marginTop="20dp"
+                android:layout_toRightOf="@+id/iconLike"
+                android:text="200" />
+
+            <Button
+                android:layout_width="50dp"
+                android:layout_height="40dp"
+                android:layout_alignParentRight="true"
+                android:layout_marginRight="40dp"
+                android:text="GO" />
+
+        </RelativeLayout>
+
+    </RelativeLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2dip"
+        android:layout_below="@+id/LytRecycler"
+        android:background="#fff0f0f0" />
+
+</RelativeLayout>
