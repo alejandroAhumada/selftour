@@ -2,8 +2,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="cl.selftourhamburger">
 
-    <uses-permission android:name="android.permission.INTERNET" />
-
     <permission
         android:name="com.javapapers.currentlocationinmap.permission.MAPS_RECEIVE"
         android:protectionLevel="signature" />
@@ -21,6 +19,7 @@
         android:glEsVersion="0x00020000"
         android:required="true" />
 
+    <uses-library android:name="com.google.android.maps" />
 
     <application
         android:allowBackup="true"
