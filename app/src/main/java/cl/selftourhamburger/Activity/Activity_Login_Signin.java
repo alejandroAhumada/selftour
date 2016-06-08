@@ -40,7 +40,8 @@ public class Activity_Login_Signin extends AppCompatActivity {
         switch(view.getId()) {
             case R.id.entrar_login:
 
-                Intent intent = new Intent(Activity_Login_Signin.this, Activity_Login.class);
+                //Intent intent = new Intent(Activity_Login_Signin.this, Activity_Login.class);
+                Intent intent = new Intent(Activity_Login_Signin.this, Activity_map.class);
                 startActivity(intent);
 
                 break;
