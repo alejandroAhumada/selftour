@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Geocoder;
 import android.location.Location;
-//import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -23,16 +22,11 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptor;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -60,16 +54,8 @@ public class Activity_map extends FragmentActivity implements OnMapReadyCallback
         mapFragment.getMapAsync(this);
 
         manager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
-        polylineOptions = new PolylineOptions();
+
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return;
         }
 
         buildGoogleApiClient();
@@ -86,48 +72,54 @@ public class Activity_map extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-        List<LatLng> listLatLng = new ArrayList<>();
+        mMap.getUiSettings().setMyLocationButtonEnabled(true);
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        }
+        mMap.setMyLocationEnabled(true);
+        LatLng MetroVicenteValdez = new LatLng(-33.526336, -70.596760);
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(MetroVicenteValdez, 13f));
+
+        mMap.setOnMyLocationChangeListener(new GoogleMap.OnMyLocationChangeListener() {
+            @Override
+            public void onMyLocationChange(Location location) {
+
+                LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+
+                mMapClear();
+                createPolyline();
+                mMap.addMarker(new MarkerOptions().position(latLng).title("ACTUAL"));
+                polylineOptions.add(latLng);
+                mMap.addPolyline(polylineOptions);
+
+            }
+        });
+    }
+
+    private void mMapClear() {
+        mMap.clear();
+    }
+
+    private void createPolyline() {
 
         LatLng MetroVicenteValdez = new LatLng(-33.526336, -70.596760);
         LatLng MetroBellavistaLaFlorida = new LatLng(-33.519823, -70.599650);
         LatLng MetroMirador = new LatLng(-33.512940, -70.606583);
 
-        listLatLng.add(MetroVicenteValdez);
-        listLatLng.add(MetroBellavistaLaFlorida);
-        listLatLng.add(MetroMirador);
+        polylineOptions = new PolylineOptions();
+
+        polylineOptions.add(MetroVicenteValdez);
+        polylineOptions.add(MetroBellavistaLaFlorida);
+        polylineOptions.add(MetroMirador);
 
         mMap.addMarker(new MarkerOptions().position(MetroVicenteValdez).title("Metro Vicente Valdez"));
         mMap.addMarker(new MarkerOptions().position(MetroBellavistaLaFlorida).title("Metro Bellavista La Florida"));
         mMap.addMarker(new MarkerOptions().position(MetroMirador).title("Metro Mirador"));
 
-        createPolyline(listLatLng);
-
-        mMap.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
-            @Override
-            public void onCameraChange(CameraPosition cameraPosition) {
-
-            }
-        });
-
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(MetroVicenteValdez, 13f));
-
     }
 
-    private void createPolyline(List<LatLng> listLatLng) {
-
-        //PolylineOptions polylineOptions = new PolylineOptions();
-
-        for (int i = 0; i < listLatLng.size(); i++) {
-            polylineOptions.add(listLatLng.get(i));
-        }
-
-        mMap.addPolyline(polylineOptions);
-    }
-
-
-    //SE DEJA SOLO POR USO DE EJEMPLO
     public void setLocation(Location loc) {
-        //Obtener la direcci—n de la calle a partir de la latitud y la longitud
+
         if (loc.getLatitude() != 0.0 && loc.getLongitude() != 0.0) {
             try {
                 Geocoder geocoder = new Geocoder(this, Locale.getDefault());
@@ -137,15 +129,12 @@ public class Activity_map extends FragmentActivity implements OnMapReadyCallback
                     Toast.makeText(getApplicationContext(), "Estoy en: \n" + address.getAddressLine(0), Toast.LENGTH_SHORT).show();
 
                 }
-                LatLng ss = new LatLng(loc.getLatitude(), loc.getLongitude());
-                mMap.addMarker(new MarkerOptions().position(ss));
 
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
     }
-
 
     @Override
     public void onConnected(Bundle bundle) {
@@ -158,7 +147,7 @@ public class Activity_map extends FragmentActivity implements OnMapReadyCallback
                 mGoogleApiClient);
 
         if (mLastLocation == null) {
-            startLocationUpdates(); // bind interface if your are not getting the lastlocation. or bind as per your requirement.
+            startLocationUpdates();
         }
 
         if (mLastLocation != null) {
@@ -171,21 +160,10 @@ public class Activity_map extends FragmentActivity implements OnMapReadyCallback
                 mLongitude = mLastLocation.getLongitude();
 
                 if (mLatitude != 0 && mLongitude != 0) {
-                    stopLocationUpdates(); // unbind the locationlistner here or wherever you want as per your requirement.
+                    stopLocationUpdates();
                 }
             }
         }
-
-        LatLng Actual = new LatLng(mLatitude, mLongitude);
-        polylineOptions.add(Actual);
-        mMap.addPolyline(polylineOptions);
-        MarkerOptions markerOptions = new MarkerOptions();
-        markerOptions.position(Actual);
-        markerOptions.title("ACTUAL");
-        markerOptions.visible(false);
-        markerOptions.icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_favorite_white_24dp));
-
-        mMap.addMarker(markerOptions);
     }
 
     @Override
@@ -218,14 +196,19 @@ public class Activity_map extends FragmentActivity implements OnMapReadyCallback
     @Override
     protected void onResume() {
         super.onResume();
+
         if (manager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
             if (mGoogleApiClient != null) {
                 mGoogleApiClient.connect();
             }
-        } else {
-            // Showyourmesg();
+        } else if(manager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)){
+            if (mGoogleApiClient != null) {
+                mGoogleApiClient.connect();
+            }
         }
     }
+
+
 
     @Override
     protected void onPause() {
@@ -250,15 +233,14 @@ public class Activity_map extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onLocationChanged(Location location) {
 
-        if (mGoogleApiClient != null)
-            if (mGoogleApiClient.isConnected() || mGoogleApiClient.isConnecting()){
+       /* if (mGoogleApiClient != null)
+            if (mGoogleApiClient.isConnected() || mGoogleApiClient.isConnecting()) {
                 mGoogleApiClient.disconnect();
                 mGoogleApiClient.connect();
-            } else if (!mGoogleApiClient.isConnected()){
+            } else if (!mGoogleApiClient.isConnected()) {
                 mGoogleApiClient.connect();
-            }
+            }*/
     }
-
 
 
 }
