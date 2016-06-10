@@ -3,6 +3,8 @@ package cl.selftourhamburger.Activity;
 import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
@@ -22,27 +24,34 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
+import cl.selftourhamburger.DataBase.DataBaseHelper;
 import cl.selftourhamburger.R;
+import cl.selftourhamburger.model.pojo.Puntos;
 
 public class Activity_map extends FragmentActivity implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
     private GoogleMap mMap;
     private GoogleApiClient mGoogleApiClient;
+    private String nomRecorrido;
+    private HashMap<Integer,Puntos> listPuntos;
     protected Location mLastLocation;
     protected double mLatitude;
     protected double mLongitude;
     protected LocationRequest mLocationRequest;
     protected LocationManager manager;
-    PolylineOptions polylineOptions;
+    protected PolylineOptions polylineOptions;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,6 +62,10 @@ public class Activity_map extends FragmentActivity implements OnMapReadyCallback
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
+        Bundle bundle = getIntent().getExtras();
+        this.nomRecorrido = bundle.getString("nomRecorrido");
+        listPuntos = getPuntos(this.nomRecorrido);
+
         manager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -61,7 +74,7 @@ public class Activity_map extends FragmentActivity implements OnMapReadyCallback
         buildGoogleApiClient();
     }
 
-    protected synchronized void buildGoogleApiClient() {
+     protected synchronized void buildGoogleApiClient() {
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
@@ -77,8 +90,9 @@ public class Activity_map extends FragmentActivity implements OnMapReadyCallback
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
         }
         mMap.setMyLocationEnabled(true);
-        LatLng MetroVicenteValdez = new LatLng(-33.526336, -70.596760);
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(MetroVicenteValdez, 13f));
+
+        LatLng inicioRecorrido = new LatLng(listPuntos.get(1).getLatitud(), listPuntos.get(1).getLongitud());
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(inicioRecorrido, 13f));
 
         mMap.setOnMyLocationChangeListener(new GoogleMap.OnMyLocationChangeListener() {
             @Override
@@ -88,8 +102,9 @@ public class Activity_map extends FragmentActivity implements OnMapReadyCallback
 
                 mMapClear();
                 createPolyline();
-                mMap.addMarker(new MarkerOptions().position(latLng).title("ACTUAL"));
+                mMap.addMarker(new MarkerOptions().position(latLng).title("Aqui Estoy!"));
                 polylineOptions.add(latLng);
+                polylineOptions.color(R.color.colorLogoSelfTour);
                 mMap.addPolyline(polylineOptions);
 
             }
@@ -102,20 +117,24 @@ public class Activity_map extends FragmentActivity implements OnMapReadyCallback
 
     private void createPolyline() {
 
-        LatLng MetroVicenteValdez = new LatLng(-33.526336, -70.596760);
-        LatLng MetroBellavistaLaFlorida = new LatLng(-33.519823, -70.599650);
-        LatLng MetroMirador = new LatLng(-33.512940, -70.606583);
-
         polylineOptions = new PolylineOptions();
 
-        polylineOptions.add(MetroVicenteValdez);
-        polylineOptions.add(MetroBellavistaLaFlorida);
-        polylineOptions.add(MetroMirador);
-
-        mMap.addMarker(new MarkerOptions().position(MetroVicenteValdez).title("Metro Vicente Valdez"));
-        mMap.addMarker(new MarkerOptions().position(MetroBellavistaLaFlorida).title("Metro Bellavista La Florida"));
-        mMap.addMarker(new MarkerOptions().position(MetroMirador).title("Metro Mirador"));
-
+        for(int i =  1; i<listPuntos.size()+1; i++){
+            LatLng latLng = new LatLng(listPuntos.get(i).getLatitud(), listPuntos.get(i).getLongitud());
+            polylineOptions.add(latLng);
+            MarkerOptions markerOptions = new MarkerOptions();
+            markerOptions.position(latLng);
+            markerOptions.title(listPuntos.get(i).getNombreLugar());
+            markerOptions.snippet(listPuntos.get(i).getDescLugar());
+            int idMarca = listPuntos.get(i).getIdMarca();
+            if(idMarca == 1){
+                markerOptions.icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_directions_walk_black_36dp));
+            }else if(idMarca == 2){
+                markerOptions.icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_beenhere_black_36dp));
+            }
+            mMap.addMarker(markerOptions);
+           //mMap.addMarker(new MarkerOptions().position(latLng).title(listPuntos.get(i).getNombreLugar()));
+        }
     }
 
     public void setLocation(Location loc) {
@@ -201,13 +220,12 @@ public class Activity_map extends FragmentActivity implements OnMapReadyCallback
             if (mGoogleApiClient != null) {
                 mGoogleApiClient.connect();
             }
-        } else if(manager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)){
+        } else if (manager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
             if (mGoogleApiClient != null) {
                 mGoogleApiClient.connect();
             }
         }
     }
-
 
 
     @Override
@@ -233,14 +251,43 @@ public class Activity_map extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onLocationChanged(Location location) {
 
-       /* if (mGoogleApiClient != null)
-            if (mGoogleApiClient.isConnected() || mGoogleApiClient.isConnecting()) {
-                mGoogleApiClient.disconnect();
-                mGoogleApiClient.connect();
-            } else if (!mGoogleApiClient.isConnected()) {
-                mGoogleApiClient.connect();
-            }*/
+
     }
+
+    private HashMap<Integer, Puntos> getPuntos(String nomRecorrido) {
+
+        DataBaseHelper db = new DataBaseHelper(getApplicationContext());
+        SQLiteDatabase database = db.getWritableDatabase();
+        listPuntos = new HashMap<>();
+        String[] columns = {"POSICION",
+                "NOMBRE_LUGAR",
+                "DESCRIPCION_LUGAR",
+                "LATITUD",
+                "LONGITUD",
+                "ID_MARCA",
+                "NOMBRE_TIPO_MARCA"};
+
+        String where = "NOMBRE_RECORRIDO = \""+nomRecorrido+"\"";
+        Cursor cursor = database.query("puntos_de_recorridos", columns, where, null,null, null, "POSICION");
+
+        if (cursor != null) {
+            while (cursor.moveToNext()) {
+                Puntos puntos = new Puntos();
+                puntos.setPos(cursor.getInt(cursor.getColumnIndex("POSICION")));
+                puntos.setNombreLugar(cursor.getString(cursor.getColumnIndex("NOMBRE_LUGAR")));
+                puntos.setDescLugar(cursor.getString(cursor.getColumnIndex("DESCRIPCION_LUGAR")));
+                puntos.setLatitud(cursor.getDouble(cursor.getColumnIndex("LATITUD")));
+                puntos.setLongitud(cursor.getDouble(cursor.getColumnIndex("LONGITUD")));
+                puntos.setIdMarca(cursor.getInt(cursor.getColumnIndex("ID_MARCA")));
+                puntos.setNombreTmarca(cursor.getString(cursor.getColumnIndex("NOMBRE_TIPO_MARCA")));
+                listPuntos.put(puntos.getPos(), puntos);
+            }
+        }
+
+        return listPuntos;
+    }
+
+
 
 
 }

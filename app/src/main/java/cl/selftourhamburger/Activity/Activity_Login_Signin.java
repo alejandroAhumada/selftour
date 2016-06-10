@@ -35,13 +35,12 @@ public class Activity_Login_Signin extends AppCompatActivity {
         }
     };
 
-    public void onClickLogin(View view){
+    public void onClickLogin(View view) {
 
-        switch(view.getId()) {
+        switch (view.getId()) {
             case R.id.entrar_login:
 
-                //Intent intent = new Intent(Activity_Login_Signin.this, Activity_Login.class);
-                Intent intent = new Intent(Activity_Login_Signin.this, Activity_map.class);
+                Intent intent = new Intent(Activity_Login_Signin.this, Activity_Login.class);
                 startActivity(intent);
 
                 break;
@@ -49,9 +48,9 @@ public class Activity_Login_Signin extends AppCompatActivity {
 
     }
 
-    public void onClickRegistrarse(View view){
+    public void onClickRegistrarse(View view) {
 
-        switch(view.getId()) {
+        switch (view.getId()) {
             case R.id.entrar_registrarse:
 
                 Intent intent = new Intent(Activity_Login_Signin.this, Activity_Registrarse.class);
@@ -59,9 +58,6 @@ public class Activity_Login_Signin extends AppCompatActivity {
 
                 break;
         }
-
-
     }
-
 
 }

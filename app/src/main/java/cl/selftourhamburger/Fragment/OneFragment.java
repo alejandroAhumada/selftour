@@ -1,5 +1,7 @@
 package cl.selftourhamburger.Fragment;
 
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -16,8 +18,10 @@ import com.synnapps.carouselview.ImageListener;
 import java.util.ArrayList;
 import java.util.List;
 
+import cl.selftourhamburger.DataBase.DataBaseHelper;
 import cl.selftourhamburger.R;
 import cl.selftourhamburger.ReciclerAdapter.ReciclerAdapterPantallaPrincipal;
+import cl.selftourhamburger.model.pojo.Recorrido;
 
 /**
  * Created by Alejandro on 03-06-2016.
@@ -40,7 +44,7 @@ public class OneFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view= inflater.inflate(R.layout.fragment_one, container, false);
+        View view = inflater.inflate(R.layout.fragment_one, container, false);
         carouselView = (CarouselView) view.findViewById(R.id.carouselViewOneFragment);
         carouselView.setPageCount(sampleImages.length);
         carouselView.setImageListener(imageListener);
@@ -54,37 +58,36 @@ public class OneFragment extends Fragment {
         RecyclerViewHeader header = (RecyclerViewHeader) view.findViewById(R.id.header);
         header.attachTo(recyclerView);
 
-        ReciclerAdapterPantallaPrincipal myAdapter = new ReciclerAdapterPantallaPrincipal(this.getContext(), createList());
+        ReciclerAdapterPantallaPrincipal myAdapter = new ReciclerAdapterPantallaPrincipal(this.getContext(), createListRecorridos());
         recyclerView.setAdapter(myAdapter);
 
         return view;
     }
 
-    private List<String> createList() {
-        List<String> stringList = new ArrayList<>();
+    private List<Recorrido> createListRecorridos() {
+        DataBaseHelper db = new DataBaseHelper(getContext());
+        SQLiteDatabase database = db.getWritableDatabase();
 
-        stringList.add("Alejandro");
-        stringList.add("Ahumada");
-        stringList.add("Rodrigo");
-        stringList.add("Ramirez");
-        stringList.add("Hector");
-        stringList.add("Martinez");
-        stringList.add("Carlos");
-        stringList.add("Orellana");
-        stringList.add("Eduardo");
-        stringList.add("Sandoval");
-        stringList.add("Motorola");
-        stringList.add("G3");
-        stringList.add("Taza");
-        stringList.add("Casa");
-        stringList.add("Perro");
-        stringList.add("Gato");
-        stringList.add("Pantalla");
-        stringList.add("Mouse");
-        stringList.add("Teclado");
-        stringList.add("CPU");
+        List<Recorrido> listRecorrido = new ArrayList<>();
+        String[] columns = {"NOMBRE_RECORRIDO", "DESCRIPCION_RECORRIDO", "DURACION"};
 
-        return stringList;
+        Cursor cursor = database.query("puntos_de_recorridos", columns, null, null, "NOMBRE_RECORRIDO", null, null);
+
+        if (cursor != null) {
+            while (cursor.moveToNext()) {
+                Recorrido recorrido = new Recorrido();
+
+                recorrido.setNombreRecorrido(cursor.getString(cursor.getColumnIndex("NOMBRE_RECORRIDO")));
+                recorrido.setDescripcionRecorrido(cursor.getString(cursor.getColumnIndex("DESCRIPCION_RECORRIDO")));
+                recorrido.setDuracion(cursor.getString(cursor.getColumnIndex("DURACION")));
+
+                listRecorrido.add(recorrido);
+
+            }
+        }
+
+        System.out.println("listRecorrido: " + listRecorrido.size());
+        return listRecorrido;
     }
 
     ImageListener imageListener = new ImageListener() {

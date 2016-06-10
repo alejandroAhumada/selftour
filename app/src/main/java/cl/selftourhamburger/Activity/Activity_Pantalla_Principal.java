@@ -15,7 +15,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -61,16 +60,6 @@ public class Activity_Pantalla_Principal extends AppCompatActivity
         //HASTA AQUI
         Toolbar toolbar = (Toolbar) findViewById(cl.selftourhamburger.R.id.toolbar);
         setSupportActionBar(toolbar);
-
-        //ESTE ES EL ICONO DE CARTA (CONTACTO)
-        /*FloatingActionButton fab = (FloatingActionButton) findViewById(cl.selftourhamburger.R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });*/
 
         DrawerLayout drawer = (DrawerLayout) findViewById(cl.selftourhamburger.R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -185,18 +174,6 @@ public class Activity_Pantalla_Principal extends AppCompatActivity
         @Override
         public CharSequence getPageTitle(int position) {
             return mFragmentTitleList.get(position);
-        }
-    }
-
-    public void onClickMapa(View view){
-
-        switch(view.getId()) {
-            case R.id.btn_map:
-
-                Intent intent = new Intent(Activity_Pantalla_Principal.this, Activity_map.class);
-                startActivity(intent);
-
-                break;
         }
     }
 }

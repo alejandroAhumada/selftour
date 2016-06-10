@@ -16,23 +16,39 @@ public class DataBaseHelper extends SQLiteOpenHelper {
             "CREATE TABLE login (\n" +
                     "\t\n" +
                     "\t\"USER\" VARCHAR(255),\n" +
-                    "\t\"PASSWORD\" VARCHAR(255),\n"+
-                    "\t\"NOMBRE\" VARCHAR(255),\n"+
-                    "\t\"MAIL\" VARCHAR(255)\n"+
+                    "\t\"PASSWORD\" VARCHAR(255),\n" +
+                    "\t\"NOMBRE\" VARCHAR(255),\n" +
+                    "\t\"MAIL\" VARCHAR(255)\n" +
                     ");\n";
 
-    public DataBaseHelper( Context context )
-    {
-        super( context, DATABASE_NAME, null, DATABASE_VERSION );
+    private static final String RECORRIDO_CREATE_TABLE =
+            "CREATE TABLE puntos_de_recorridos (\n" +
+                    "\t\n" +
+                    "\t\"ID_RECORRIDO\" INTEGER PRIMARY KEY AUTOINCREMENT,\n" +
+                    "\t\"NOMBRE_RECORRIDO\" VARCHAR(255),\n" +
+                    "\t\"DESCRIPCION_RECORRIDO\" VARCHAR(255),\n" +
+                    "\t\"DURACION\" VARCHAR(255),\n" +
+                    "\t\"POSICION\" INTEGER,\n" +
+                    "\t\"NOMBRE_LUGAR\" VARCHAR(255),\n" +
+                    "\t\"DESCRIPCION_LUGAR\" VARCHAR(255),\n" +
+                    "\t\"LATITUD\" VARCHAR(255),\n" +
+                    "\t\"LONGITUD\" VARCHAR(255),\n" +
+                    "\t\"ID_MARCA\" INTEGER,\n" +
+                    "\t\"NOMBRE_TIPO_MARCA\" VARCHAR(255)\n" +
+                    ");\n";
+
+    public DataBaseHelper(Context context) {
+        super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(LOGIN_CREATE_TABLE);
+        db.execSQL(RECORRIDO_CREATE_TABLE);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-
+        db.execSQL("DROP TABLE IF EXISTS " + "puntos_de_recorridos");
     }
 }
