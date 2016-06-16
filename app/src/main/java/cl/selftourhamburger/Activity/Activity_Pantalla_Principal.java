@@ -15,6 +15,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.plus.Plus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,6 +33,7 @@ import cl.selftourhamburger.R;
 public class Activity_Pantalla_Principal extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
+    GoogleApiClient mGoogleApiClient;
     private Toolbar toolbar;
     private TabLayout tabLayout;
     private ViewPager viewPager;
@@ -44,6 +49,13 @@ public class Activity_Pantalla_Principal extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(cl.selftourhamburger.R.layout.activity_main);
+
+        mGoogleApiClient = new GoogleApiClient.Builder(getApplicationContext())
+                .addApi(Plus.API)
+                .addScope(Plus.SCOPE_PLUS_LOGIN)
+                .build();
+        mGoogleApiClient.connect();
+
 
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -77,7 +89,7 @@ public class Activity_Pantalla_Principal extends AppCompatActivity
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
-            super.onBackPressed();
+            this.moveTaskToBack(true);
         }
     }
 
@@ -120,6 +132,8 @@ public class Activity_Pantalla_Principal extends AppCompatActivity
         } else if (id == cl.selftourhamburger.R.id.nav_share) {
 
         } else if (id == cl.selftourhamburger.R.id.nav_send) {
+
+            signOutFromGplus();
 
             Intent intent = new Intent(Activity_Pantalla_Principal.this, Activity_Login_Signin.class);
             startActivity(intent);
@@ -174,6 +188,14 @@ public class Activity_Pantalla_Principal extends AppCompatActivity
         @Override
         public CharSequence getPageTitle(int position) {
             return mFragmentTitleList.get(position);
+        }
+    }
+
+    private void signOutFromGplus() {
+        if (mGoogleApiClient.isConnected()) {
+            Plus.AccountApi.clearDefaultAccount(mGoogleApiClient);
+            mGoogleApiClient.disconnect();
+            mGoogleApiClient.connect();
         }
     }
 }
