@@ -6,6 +6,8 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
 
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.plus.Plus;
 import com.synnapps.carouselview.CarouselView;
 import com.synnapps.carouselview.ImageListener;
 
@@ -14,6 +16,7 @@ import cl.selftourhamburger.R;
 public class Activity_Login_Signin extends AppCompatActivity {
 
     CarouselView carouselView;
+    GoogleApiClient mGoogleApiClient;
 
     int[] sampleImages = {R.drawable.fondo1, R.drawable.fondo2, R.drawable.fondo3, R.drawable.fondo2};
 
@@ -21,6 +24,12 @@ public class Activity_Login_Signin extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.lyt_activity_login_sign);
+
+        mGoogleApiClient = new GoogleApiClient.Builder(getApplicationContext())
+                .addApi(Plus.API)
+                .addScope(Plus.SCOPE_PLUS_LOGIN)
+                .build();
+        mGoogleApiClient.connect();
 
         carouselView = (CarouselView) findViewById(R.id.carouselView);
         carouselView.setPageCount(sampleImages.length);
@@ -40,8 +49,13 @@ public class Activity_Login_Signin extends AppCompatActivity {
         switch (view.getId()) {
             case R.id.entrar_login:
 
-                Intent intent = new Intent(Activity_Login_Signin.this, Activity_Login.class);
-                startActivity(intent);
+                if (mGoogleApiClient.isConnected()) {
+                    Intent intent = new Intent(Activity_Login_Signin.this, Activity_Pantalla_Principal.class);
+                    startActivity(intent);
+                }else{
+                    Intent intent = new Intent(Activity_Login_Signin.this, Activity_Login.class);
+                    startActivity(intent);
+                }
 
                 break;
         }
@@ -58,6 +72,10 @@ public class Activity_Login_Signin extends AppCompatActivity {
 
                 break;
         }
+    }
+
+    private void signInFromGplus() {
+
     }
 
 }
