@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <RelativeLayout
+        android:id="@+id/carousel"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <com.synnapps.carouselview.CarouselView
+            android:id="@+id/carouselView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginBottom="55dp"
+            app:fillColor="#FFFFFFFF"
+            app:pageColor="#00000000"
+            app:radius="6dp"
+            app:slideInterval="3000"
+            app:strokeColor="@color/colorLogoSelfTour"
+            app:strokeWidth="1dp"/>
+
+        <ImageView
+            android:id="@+id/logo_login_signin"
+            android:layout_width="wrap_content"
+            android:layout_height="220dp"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="25dp"
+            android:layout_marginTop="30dp"
+            android:background="@drawable/logo_light_selftour" />
+
+        <RelativeLayout
+            android:id="@+id/lyt_btns"
+            android:layout_width="wrap_content"
+            android:layout_height="55dp"
+            android:layout_alignParentBottom="true"
+            android:background="@color/colorLogoSelfTour">
+
+            <Button
+                android:id="@+id/entrar_login"
+                android:layout_width="match_parent"
+                android:layout_height="55dp"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentBottom="true"
+                android:onClick="onClickLogin"
+                android:text="Login"
+                android:textAlignment="center"
+                android:gravity="center"
+                android:background="@color/colorLogoSelfTour"
+                android:layout_centerHorizontal="true"
+                android:layout_centerVertical="true"
+                android:layout_toLeftOf="@+id/view"/>
+
+            <View
+                android:id="@+id/view"
+                android:layout_width="1dp"
+                android:layout_height="match_parent"
+                android:layout_below="@+id/LytRecycler"
+                android:background="#000000"
+                android:layout_centerHorizontal="true"/>
+
+            <Button
+                android:id="@+id/entrar_registrarse"
+                android:layout_width="wrap_content"
+                android:layout_height="55dp"
+                android:layout_alignParentRight="true"
+                android:onClick="onClickRegistrarse"
+                android:text="Registrarse"
+                android:textColor="#ffffff"
+                android:textAlignment="center"
+                android:gravity="center"
+                android:layout_alignParentBottom="true"
+                android:background="#4b5356"
+                android:layout_centerHorizontal="true"
+                android:layout_centerVertical="true"
+                android:layout_toRightOf="@+id/view"/>
+
+        </RelativeLayout>
+
+    </RelativeLayout>
+
+</LinearLayout>
