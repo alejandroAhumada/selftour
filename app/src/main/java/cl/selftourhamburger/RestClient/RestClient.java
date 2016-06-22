@@ -15,8 +15,10 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import cl.selftourhamburger.model.pojo.Nacionalidad;
 import cl.selftourhamburger.model.pojo.Puntos;
 import cl.selftourhamburger.model.pojo.Recorrido;
+import cl.selftourhamburger.model.pojo.RegistroUsuario;
 import cl.selftourhamburger.model.pojo.UsuarioIngresado;
 
 /**
@@ -32,6 +34,7 @@ public class RestClient {
         try {
             params.put("user", username);
             params.put("pass", password);
+            params.put("social", "selftour");
 
             StringBuilder postData = new StringBuilder();
             for (Map.Entry<String, Object> param : params.entrySet()) {
@@ -59,10 +62,11 @@ public class RestClient {
 
     private static StringBuilder getStringParaJson(byte[] postDataBytes) {
 
-        HttpURLConnection conn;
+        HttpURLConnection conn = null;
         StringBuilder sb = new StringBuilder();
         try {
-            URL url = new URL("http://selftour.xcloud.cl/login.php");
+
+            URL url = new URL("http://ws.xcloud.cl/user/login");
             conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("POST");
             conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
@@ -82,6 +86,8 @@ public class RestClient {
             }
         } catch (IOException e) {
             e.printStackTrace();
+        } finally {
+            conn.disconnect();
         }
 
         return sb;
@@ -115,7 +121,7 @@ public class RestClient {
 
     public static List<Recorrido> getRecorridoDesdeServidor() {
         List<Recorrido> listRecorrido = new ArrayList<>();
-        HttpURLConnection conn;
+        HttpURLConnection conn = null;
         StringBuilder sb = new StringBuilder();
         try {
             URL url = new URL("http://ws.xcloud.cl/route");
@@ -139,6 +145,8 @@ public class RestClient {
             System.out.println("SB " + sb.toString());
         } catch (IOException e) {
             e.printStackTrace();
+        } finally {
+            conn.disconnect();
         }
 
         return listRecorrido;
@@ -186,5 +194,155 @@ public class RestClient {
         }
 
         return listRecorrido;
+    }
+
+    public int registrarse(RegistroUsuario registroUsuario) {
+
+        Map<String, Object> params = new LinkedHashMap<>();
+        StringBuilder sb;
+        int nextToLogin = 0;
+
+        try {
+            params.put("name", registroUsuario.getNombre());
+            params.put("lastname", registroUsuario.getApellido());
+            params.put("email", registroUsuario.getMail());
+            params.put("gender", registroUsuario.getGenero());
+            params.put("user", registroUsuario.getNombreUsuario());
+            params.put("pass", registroUsuario.getPassword());
+            params.put("birth", registroUsuario.getFechaNacimiento());
+            params.put("social", "selftour");
+            params.put("nation", registroUsuario.getNacionalidad());
+
+            StringBuilder postData = new StringBuilder();
+            for (Map.Entry<String, Object> param : params.entrySet()) {
+                if (postData.length() != 0) postData.append('&');
+                postData.append(URLEncoder.encode(param.getKey(), "UTF-8"));
+                postData.append('=');
+                postData.append(URLEncoder.encode(String.valueOf(param.getValue()), "UTF-8"));
+            }
+
+            byte[] postDataBytes = postData.toString().getBytes("UTF-8");
+
+            sb = getStringParaJsonRegistrar(postDataBytes);
+            nextToLogin = getDatosRegistroUsuario(sb);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return nextToLogin;
+
+    }
+
+    private static StringBuilder getStringParaJsonRegistrar(byte[] postDataBytes) {
+
+        HttpURLConnection conn = null;
+        StringBuilder sb = new StringBuilder();
+        try {
+            URL url = new URL("http://ws.xcloud.cl/user/new");
+            conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("POST");
+            conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+            conn.setRequestProperty("Content-Length", String.valueOf(postDataBytes.length));
+            conn.setDoOutput(true);
+            conn.getOutputStream().write(postDataBytes);
+
+            String responseMessage = conn.getResponseMessage();
+            System.out.printf("RESPONSE_Resgistrar: " + responseMessage);
+            int status = conn.getResponseCode();
+            System.out.println(" STATUS_Registrar " + status);
+
+            BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
+            String line;
+            while ((line = in.readLine()) != null) {
+                sb.append(line);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            conn.disconnect();
+        }
+
+        return sb;
+    }
+
+    private static int getDatosRegistroUsuario(StringBuilder sb) {
+
+        int nextToLogin = 0;
+        JSONObject json;
+        try {
+            json = new JSONObject(sb.toString());
+            System.out.println("JSON: " + json);
+
+            nextToLogin = json.getInt("nextToLogin");
+            String mensaje = json.getString("mensaje");
+
+            System.out.println("nextToLogin: " + nextToLogin);
+            System.out.println("mensaje: " + mensaje);
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        /*1= se puede logear, 0= no se puede logear */
+        return nextToLogin;
+    }
+
+    public List<Nacionalidad> getNacionalidad() {
+        List<Nacionalidad> nacionalidad = new ArrayList<>();
+
+        HttpURLConnection conn = null;
+        StringBuilder sb = new StringBuilder();
+        try {
+            URL url = new URL("http://ws.xcloud.cl/user/nacionalidad");
+            conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("POST");
+            conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+            String responseMessage = conn.getResponseMessage();
+
+            System.out.printf("RESPONSE: " + responseMessage);
+            int status = conn.getResponseCode();
+            System.out.println(" STATUS " + status);
+
+            BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
+            String line;
+            while ((line = in.readLine()) != null) {
+                sb.append(line);
+            }
+
+            nacionalidad = getNacionalidades(sb);
+
+            System.out.println("SB " + sb.toString());
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            conn.disconnect();
+        }
+
+        return nacionalidad;
+    }
+
+    private static List<Nacionalidad> getNacionalidades(StringBuilder sb) {
+
+        List<Nacionalidad> listNacionalidades = new ArrayList<>();
+        try {
+
+            JSONArray array = new JSONArray(sb.toString());
+
+            for (int i = 0; i < array.length(); i++) {
+                Nacionalidad nacionalidad = new Nacionalidad();
+
+                JSONObject objectRecorrido = array.getJSONObject(i);
+                nacionalidad.setId(objectRecorrido.getInt("id"));
+                nacionalidad.setNacionalidad(objectRecorrido.getString("nombre"));
+
+                listNacionalidades.add(nacionalidad);
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return listNacionalidades;
     }
 }

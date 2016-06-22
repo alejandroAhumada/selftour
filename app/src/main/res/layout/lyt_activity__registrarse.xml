@@ -7,58 +7,71 @@
 
     <RelativeLayout
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_centerVertical="true"
+        android:layout_height="match_parent"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true">
 
         <ImageView
             android:id="@+id/login_logo"
-            android:layout_width="wrap_content"
-            android:layout_height="230dp"
+            android:layout_width="150dp"
+            android:layout_height="100dp"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="5dp"
-            android:layout_marginBottom="25dp"
+            android:layout_marginBottom="15dp"
             android:background="@drawable/logo_self_tour2"/>
 
         <RelativeLayout
             android:id="@+id/login_data_content"
             android:layout_width="wrap_content"
-            android:layout_height="190dp"
+            android:layout_height="wrap_content"
             android:layout_below="@+id/login_logo"
             android:layout_centerInParent="true"
-            android:layout_marginTop="10dp"
+            android:layout_marginLeft="30dp"
+            android:layout_marginRight="30dp"
             android:background="#fff">
 
             <EditText
-                android:id="@+id/login_user"
-                android:layout_width="250dp"
+                android:id="@+id/login_nombre"
+                android:layout_width="match_parent"
                 android:layout_height="25dp"
                 android:layout_centerHorizontal="true"
-                android:layout_marginTop="20dp"
                 android:background="@drawable/edittext_stroke"
                 android:drawablePadding="10dp"
-                android:hint="Usuario"
-                android:inputType="none|textVisiblePassword"
+                android:hint="Nombre"
+                android:inputType="none|textAutoComplete"
                 android:imeOptions="actionNext"/>
 
             <EditText
-                android:id="@+id/login_mail"
-                android:layout_width="250dp"
+                android:id="@+id/login_apellido"
+                android:layout_width="match_parent"
                 android:layout_height="25dp"
-                android:layout_below="@id/login_user"
+                android:layout_below="@id/login_nombre"
                 android:layout_centerHorizontal="true"
                 android:layout_marginTop="20dp"
                 android:background="@drawable/edittext_stroke"
                 android:drawablePadding="10dp"
                 android:ems="10"
-                android:imeOptions="actionGo"
-                android:hint="mail"
-                android:inputType="textPassword"/>
+                android:imeOptions="actionNext"
+                android:hint="Apellido"
+                android:inputType="none|textAutoComplete"/>
 
             <EditText
-                android:id="@+id/login_password"
-                android:layout_width="250dp"
+                android:id="@+id/login_mail"
+                android:layout_width="match_parent"
+                android:layout_height="25dp"
+                android:layout_below="@id/login_apellido"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="20dp"
+                android:background="@drawable/edittext_stroke"
+                android:drawablePadding="10dp"
+                android:ems="10"
+                android:imeOptions="actionNext"
+                android:hint="Mail"
+                android:inputType="none|textAutoComplete"/>
+
+            <EditText
+                android:id="@+id/login_genero"
+                android:layout_width="match_parent"
                 android:layout_height="25dp"
                 android:layout_below="@id/login_mail"
                 android:layout_centerHorizontal="true"
@@ -66,13 +79,41 @@
                 android:background="@drawable/edittext_stroke"
                 android:drawablePadding="10dp"
                 android:ems="10"
-                android:imeOptions="actionGo"
-                android:hint="Password"
+                android:imeOptions="actionNext"
+                android:hint="Genero"
+                android:inputType="none|textAutoComplete"/>
+
+            <EditText
+                android:id="@+id/login_user"
+                android:layout_width="match_parent"
+                android:layout_height="25dp"
+                android:layout_below="@id/login_genero"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="20dp"
+                android:background="@drawable/edittext_stroke"
+                android:drawablePadding="10dp"
+                android:ems="10"
+                android:imeOptions="actionNext"
+                android:hint="Nombre Usuario"
+                android:inputType="none|textAutoComplete"/>
+
+            <EditText
+                android:id="@+id/login_password"
+                android:layout_width="match_parent"
+                android:layout_height="25dp"
+                android:layout_below="@id/login_user"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="20dp"
+                android:background="@drawable/edittext_stroke"
+                android:drawablePadding="10dp"
+                android:ems="10"
+                android:imeOptions="actionNext"
+                android:hint="Contraseña"
                 android:inputType="textPassword"/>
 
             <EditText
-                android:id="@+id/login_confirm_password"
-                android:layout_width="250dp"
+                android:id="@+id/login_fechaNacimiento"
+                android:layout_width="match_parent"
                 android:layout_height="25dp"
                 android:layout_below="@id/login_password"
                 android:layout_centerHorizontal="true"
@@ -80,9 +121,21 @@
                 android:background="@drawable/edittext_stroke"
                 android:drawablePadding="10dp"
                 android:ems="10"
-                android:imeOptions="actionGo"
-                android:hint="Confirmar Password"
-                android:inputType="textPassword"/>
+                android:imeOptions="actionNext"
+                android:hint="Fecha de Nacimiento"
+                android:inputType="none|textVisiblePassword"/>
+
+            <Spinner
+                android:id="@+id/spnNacionalidad"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/login_fechaNacimiento"
+                android:layout_marginTop="20dp"
+                android:gravity="center"
+                android:layout_centerHorizontal="true"
+                android:layout_marginRight="5dp"
+                android:prompt="@string/nacionalidad"
+                android:spinnerMode="dialog"/>
 
         </RelativeLayout>
 
@@ -92,14 +145,14 @@
             android:layout_height="40dp"
             android:layout_alignLeft="@id/login_data_content"
             android:layout_alignRight="@id/login_data_content"
-            android:layout_below="@id/login_data_content"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
             android:background="@drawable/buttonshape"
-            android:onClick="onClick"
+            android:onClick="onClickRegistrarse"
             android:text="Registrarse"
             android:textAllCaps="true"
-            android:textColor="@android:color/white" />
+            android:textColor="@android:color/white"
+            android:layout_alignParentBottom="true"/>
 
     </RelativeLayout>
 

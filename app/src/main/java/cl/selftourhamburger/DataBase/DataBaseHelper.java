@@ -37,6 +37,13 @@ public class DataBaseHelper extends SQLiteOpenHelper {
                     "\t\"NOMBRE_TIPO_MARCA\" VARCHAR(255)\n" +
                     ");\n";
 
+    private static final String NACIONALIDADES_CREATE_TABLE =
+            "CREATE TABLE nacionalidad (\n" +
+                    "\t\n" +
+                    "\t\"ID_NACIONALIDAD\" INTEGER,\n" +
+                    "\t\"NACIONALIDAD\" VARCHAR(255)\n" +
+                    ");\n";
+
     public DataBaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
@@ -45,6 +52,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(LOGIN_CREATE_TABLE);
         db.execSQL(RECORRIDO_CREATE_TABLE);
+        db.execSQL(NACIONALIDADES_CREATE_TABLE);
     }
 
     @Override
