@@ -2,9 +2,11 @@ package cl.selftourhamburger.Activity;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.location.Criteria;
 import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
@@ -30,7 +32,6 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -52,11 +53,14 @@ public class Activity_map extends FragmentActivity implements OnMapReadyCallback
     protected LocationRequest mLocationRequest;
     protected LocationManager manager;
     protected PolylineOptions polylineOptions;
+    private Criteria req;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
+
+        req = new Criteria();
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
@@ -68,13 +72,30 @@ public class Activity_map extends FragmentActivity implements OnMapReadyCallback
 
         manager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
 
+        saberSiEstaActivoElGPS();
+
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
         }
 
         buildGoogleApiClient();
     }
 
-     protected synchronized void buildGoogleApiClient() {
+    private void saberSiEstaActivoElGPS() {
+
+        boolean isGPSEnabled = manager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+
+        if(!isGPSEnabled){
+            Intent gpsOptionsIntent = new Intent(
+                    android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+            Toast.makeText(getApplicationContext(),"Favor Habilitar GPS",Toast.LENGTH_SHORT).show();
+            startActivity(gpsOptionsIntent);
+        }
+
+
+    }
+
+
+    protected synchronized void buildGoogleApiClient() {
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)

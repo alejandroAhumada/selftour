@@ -5,37 +5,21 @@ package cl.selftourhamburger.model.pojo;
  */
 public class UsuarioIngresado {
 
-    String username;
-    String password;
     String nombre;
+    String apellido;
     String mail;
-    Boolean loginCorrecto;
+    Boolean canLogin;
+    Boolean haveLogon;
 
     public UsuarioIngresado() {
     }
 
-    public UsuarioIngresado(String username, String password, String nombre, String mail, Boolean loginCorrecto) {
-        this.username = username;
-        this.password = password;
+    public UsuarioIngresado(String nombre, String apellido,String mail, Boolean canLogin, Boolean haveLogon) {
         this.nombre = nombre;
+        this.apellido = apellido;
         this.mail = mail;
-        this.loginCorrecto = loginCorrecto;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
+        this.canLogin = canLogin;
+        this.haveLogon = haveLogon;
     }
 
     public String getNombre() {
@@ -46,6 +30,14 @@ public class UsuarioIngresado {
         this.nombre = nombre;
     }
 
+    public String getApellido() {
+        return apellido;
+    }
+
+    public void setApellido(String apellido) {
+        this.apellido = apellido;
+    }
+
     public String getMail() {
         return mail;
     }
@@ -54,11 +46,19 @@ public class UsuarioIngresado {
         this.mail = mail;
     }
 
-    public Boolean getLoginCorrecto() {
-        return loginCorrecto;
+    public Boolean getCanLogin() {
+        return canLogin;
     }
 
-    public void setLoginCorrecto(Boolean loginCorrecto) {
-        this.loginCorrecto = loginCorrecto;
+    public void setCanLogin(Boolean canLogin) {
+        this.canLogin = canLogin;
+    }
+
+    public Boolean getHaveLogon() {
+        return haveLogon;
+    }
+
+    public void setHaveLogon(Boolean haveLogon) {
+        this.haveLogon = haveLogon;
     }
 }

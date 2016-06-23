@@ -2,8 +2,10 @@ package cl.selftourhamburger.Activity;
 
         import android.app.Activity;
         import android.content.ContentValues;
+        import android.content.Context;
         import android.content.Intent;
         import android.content.IntentSender;
+        import android.content.SharedPreferences;
         import android.database.SQLException;
         import android.database.sqlite.SQLiteDatabase;
         import android.graphics.Bitmap;
@@ -42,6 +44,11 @@ public class Activity_Login extends Activity implements View.OnClickListener,
         GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
     private RestClient restClient;
+    private SharedPreferences sp;
+    private String personName;
+    private String email;
+    private String personPhotoUrl;
+    private String personGooglePlusProfile;
 
     /*VARIABLES LOGIN CON GOOGLE*/
     private static final int RC_SIGN_IN = 0;
@@ -64,6 +71,8 @@ public class Activity_Login extends Activity implements View.OnClickListener,
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(cl.selftourhamburger.R.layout.activity_login);
+
+        sp = getSharedPreferences("cl.selftourhamburger", Context.MODE_PRIVATE);
 
         btnSignIn = (SignInButton) findViewById(R.id.btn_sign_in);
         btnSignOut = (Button) findViewById(R.id.btn_sign_out);
@@ -93,21 +102,28 @@ public class Activity_Login extends Activity implements View.OnClickListener,
                 TextView user = (TextView) findViewById(cl.selftourhamburger.R.id.login_user);
                 TextView pass = (TextView) findViewById(cl.selftourhamburger.R.id.login_password);
 
-                new LoginTask().execute(user.getText().toString(), pass.getText().toString());
+                new LoginTask().execute(user.getText().toString(), pass.getText().toString(), "selftour");
                 break;
         }
     }
 
     private class LoginTask extends AsyncTask<String, Void, UsuarioIngresado> {
 
+        String logeado;
+
         @Override
         protected UsuarioIngresado doInBackground(String... params) {
-            UsuarioIngresado usuarioIngresado = restClient.login(params[0], params[1]);
+            logeado = params[2].toString();
+
+            UsuarioIngresado usuarioIngresado = restClient.login(params[0], params[1], params[2]);
             List<Recorrido> listRecorridos = restClient.getRecorridoDesdeServidor();
             setUsuarioIngrsadoABD(usuarioIngresado);
             setRecorridoABD(listRecorridos);
 
-            if (usuarioIngresado.getLoginCorrecto()) {
+            if (usuarioIngresado.getCanLogin()) {
+                sp.edit().putString("login_user", params[0]).apply();
+                sp.edit().putString("login_pass", params[1]).apply();
+                sp.edit().putBoolean("login", true).apply();
                 return usuarioIngresado;
             } else {
                 return usuarioIngresado;
@@ -117,16 +133,32 @@ public class Activity_Login extends Activity implements View.OnClickListener,
 
         @Override
         protected void onPostExecute(UsuarioIngresado usuarioIngresado) {
-            if (!usuarioIngresado.getLoginCorrecto()) {
 
-                AlertUtils.showErrorAlert(Activity_Login.this, "Error de Ingreso", "Credenciales Invalidas");
-            } else {
+            if(logeado.equalsIgnoreCase("selftour")){
+                if (!usuarioIngresado.getCanLogin()) {
 
-                Log.i("Activity_Login", "ActivityLogin OK...");
+                    AlertUtils.showErrorAlert(Activity_Login.this, "Error de Ingreso", "Credenciales Invalidas");
+                } else {
 
-                Intent intent = new Intent(Activity_Login.this, Activity_Pantalla_Principal.class);
-                startActivity(intent);
+                    Log.i("Activity_Login", "ActivityLogin OK...");
+
+                    Intent intent = new Intent(Activity_Login.this, Activity_Pantalla_Principal.class);
+                    startActivity(intent);
+                }
+            }else {
+                if (!usuarioIngresado.getHaveLogon()) {
+
+                    AlertUtils.showErrorAlert(Activity_Login.this, "Error de Ingreso", "Credenciales Invalidas");
+                } else {
+
+                    Log.i("Activity_Login", "ActivityLogin OK...");
+
+                    Intent intent = new Intent(Activity_Login.this, Activity_Pantalla_Principal.class);
+                    startActivity(intent);
+                }
             }
+
+
         }
     }
 
@@ -140,9 +172,8 @@ public class Activity_Login extends Activity implements View.OnClickListener,
             ContentValues contentValues = new ContentValues();
             database.beginTransaction();
 
-            contentValues.put("USER", usuarioIngrsado.getUsername());
-            contentValues.put("PASSWORD", usuarioIngrsado.getPassword());
             contentValues.put("NOMBRE", usuarioIngrsado.getNombre());
+            contentValues.put("APELLIDO", usuarioIngrsado.getApellido());
             contentValues.put("MAIL", usuarioIngrsado.getMail());
 
             database.insert("login", null, contentValues);
@@ -286,8 +317,11 @@ public class Activity_Login extends Activity implements View.OnClickListener,
             btnSignOut.setVisibility(View.GONE);
             btnRevokeAccess.setVisibility(View.GONE);
             llProfileLayout.setVisibility(View.GONE);
-            Intent intent = new Intent(Activity_Login.this, Activity_Pantalla_Principal.class);
-            startActivity(intent);
+
+            new LoginTask().execute(email, "redSocial", "google");
+
+            /*Intent intent = new Intent(Activity_Login.this, Activity_Pantalla_Principal.class);
+            startActivity(intent);*/
         } else {
             btnSignIn.setVisibility(View.VISIBLE);
             btnSignOut.setVisibility(View.GONE);
@@ -304,10 +338,10 @@ public class Activity_Login extends Activity implements View.OnClickListener,
             if (Plus.PeopleApi.getCurrentPerson(mGoogleApiClient) != null) {
                 Person currentPerson = Plus.PeopleApi
                         .getCurrentPerson(mGoogleApiClient);
-                String personName = currentPerson.getDisplayName();
-                String personPhotoUrl = currentPerson.getImage().getUrl();
-                String personGooglePlusProfile = currentPerson.getUrl();
-                String email = Plus.AccountApi.getAccountName(mGoogleApiClient);
+                personName = currentPerson.getDisplayName();
+                personPhotoUrl = currentPerson.getImage().getUrl();
+                personGooglePlusProfile = currentPerson.getUrl();
+                email = Plus.AccountApi.getAccountName(mGoogleApiClient);
 
                 Log.e(TAG, "Name: " + personName + ", plusProfile: "
                         + personGooglePlusProfile + ", email: " + email

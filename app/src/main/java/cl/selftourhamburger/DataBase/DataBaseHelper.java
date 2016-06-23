@@ -15,9 +15,8 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     private static final String LOGIN_CREATE_TABLE =
             "CREATE TABLE login (\n" +
                     "\t\n" +
-                    "\t\"USER\" VARCHAR(255),\n" +
-                    "\t\"PASSWORD\" VARCHAR(255),\n" +
                     "\t\"NOMBRE\" VARCHAR(255),\n" +
+                    "\t\"APELLIDO\" VARCHAR(255),\n" +
                     "\t\"MAIL\" VARCHAR(255)\n" +
                     ");\n";
 

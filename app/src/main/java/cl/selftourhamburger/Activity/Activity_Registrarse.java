@@ -2,7 +2,9 @@ package cl.selftourhamburger.Activity;
 
 import android.app.Activity;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
@@ -35,11 +37,14 @@ public class Activity_Registrarse extends Activity {
 
     private RestClient restClient;
     Spinner spinnerNacionalidades;
+    private SharedPreferences sp;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.lyt_activity__registrarse);
+
+        sp = getSharedPreferences("cl.selftourhamburger", Context.MODE_PRIVATE);
 
         spinnerNacionalidades = (Spinner) findViewById(R.id.spnNacionalidad);
         spinnerNacionalidades.setAdapter(getSpinnerAdapterNacionalidad());
@@ -138,6 +143,12 @@ public class Activity_Registrarse extends Activity {
 
                 List<Recorrido> listRecorridos = restClient.getRecorridoDesdeServidor();
                 setRecorridoABD(listRecorridos);
+
+                if(nextToLogin == 1){
+                    sp.edit().putString("login_user", registroUsuario.getNombreUsuario()).apply();
+                    sp.edit().putString("login_pass", registroUsuario.getPassword()).apply();
+                    sp.edit().putBoolean("login", true).apply();
+                }
 
                 this.finalize();
 

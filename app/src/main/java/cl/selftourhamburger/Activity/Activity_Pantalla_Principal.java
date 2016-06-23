@@ -1,6 +1,8 @@
 package cl.selftourhamburger.Activity;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
@@ -37,6 +39,7 @@ public class Activity_Pantalla_Principal extends AppCompatActivity
     private Toolbar toolbar;
     private TabLayout tabLayout;
     private ViewPager viewPager;
+    private SharedPreferences sp;
     private int[] tabIcons = {
             R.mipmap.ic_home_white_24dp,
             R.mipmap.ic_map_white_24dp,
@@ -49,6 +52,8 @@ public class Activity_Pantalla_Principal extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(cl.selftourhamburger.R.layout.activity_main);
+
+        sp = getApplicationContext().getSharedPreferences("cl.selftourhamburger", Context.MODE_MULTI_PROCESS);
 
         mGoogleApiClient = new GoogleApiClient.Builder(getApplicationContext())
                 .addApi(Plus.API)
@@ -132,6 +137,10 @@ public class Activity_Pantalla_Principal extends AppCompatActivity
         } else if (id == cl.selftourhamburger.R.id.nav_share) {
 
         } else if (id == cl.selftourhamburger.R.id.nav_send) {
+
+            sp.edit().remove("login_user").commit();
+            sp.edit().remove("login_pass").commit();
+            sp.edit().remove("login").commit();
 
             signOutFromGplus();
 

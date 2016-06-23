@@ -26,15 +26,21 @@ import cl.selftourhamburger.model.pojo.UsuarioIngresado;
  */
 public class RestClient {
 
-    public static UsuarioIngresado login(String username, String password) {
+    public static UsuarioIngresado login(String username, String password, String tipoLogin) {
 
         Map<String, Object> params = new LinkedHashMap<>();
         StringBuilder sb;
         UsuarioIngresado usuarioIngresado = new UsuarioIngresado();
         try {
-            params.put("user", username);
-            params.put("pass", password);
-            params.put("social", "selftour");
+            if(tipoLogin.equalsIgnoreCase("selftour")){
+                params.put("user", username);
+                params.put("pass", password);
+                params.put("social", tipoLogin);
+            }else{
+                params.put("user", username);
+                params.put("social", tipoLogin);
+            }
+
 
             StringBuilder postData = new StringBuilder();
             for (Map.Entry<String, Object> param : params.entrySet()) {
@@ -53,8 +59,8 @@ public class RestClient {
             e.printStackTrace();
         }
 
-        if (usuarioIngresado.getUsername() == null) {
-            usuarioIngresado.setLoginCorrecto(false);
+        if (usuarioIngresado.getNombre() == null) {
+            usuarioIngresado.setCanLogin(false);
         }
 
         return usuarioIngresado;
@@ -100,16 +106,16 @@ public class RestClient {
         JSONObject json;
         try {
             json = new JSONObject(sb.toString());
-            System.out.println("JSON: " + json);
-            usuarioIngresado.setLoginCorrecto(json.getBoolean("acceso"));
+            System.out.println("JSON-LOGIN: " + json);
+            usuarioIngresado.setCanLogin(json.getBoolean("canLogin"));
+            usuarioIngresado.setHaveLogon(json.getBoolean("haveLogon"));
 
-            if (usuarioIngresado.getLoginCorrecto()) {
+            if (usuarioIngresado.getCanLogin()) {
 
-                JSONObject usuario = json.getJSONObject("usuario");
-                usuarioIngresado.setUsername(usuario.getString("username"));
-                usuarioIngresado.setPassword(usuario.getString("password"));
+                JSONObject usuario = json.getJSONObject("user");
                 usuarioIngresado.setNombre(usuario.getString("nombre"));
-                usuarioIngresado.setMail(usuario.getString("mail"));
+                usuarioIngresado.setApellido(usuario.getString("apellido"));
+                usuarioIngresado.setMail(usuario.getString("email"));
             }
 
         } catch (JSONException e) {
