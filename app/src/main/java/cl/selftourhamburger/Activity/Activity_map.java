@@ -14,6 +14,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -27,6 +28,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.GroundOverlayOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
@@ -115,25 +117,18 @@ public class Activity_map extends FragmentActivity implements OnMapReadyCallback
         LatLng inicioRecorrido = new LatLng(listPuntos.get(1).getLatitud(), listPuntos.get(1).getLongitud());
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(inicioRecorrido, 13f));
 
-        mMap.setOnMyLocationChangeListener(new GoogleMap.OnMyLocationChangeListener() {
-            @Override
-            public void onMyLocationChange(Location location) {
 
-                LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED) {
+            mMap.setMyLocationEnabled(true);
 
-                mMapClear();
-                createPolyline();
-                mMap.addMarker(new MarkerOptions().position(latLng).title("Aqui Estoy!"));
-                polylineOptions.add(latLng);
-                polylineOptions.color(R.color.colorLogoSelfTour);
-                mMap.addPolyline(polylineOptions);
+            createPolyline();
 
-            }
-        });
-    }
+            mMap.addPolyline(polylineOptions);
+        } else {
 
-    private void mMapClear() {
-        mMap.clear();
+        }
+
     }
 
     private void createPolyline() {
@@ -142,7 +137,16 @@ public class Activity_map extends FragmentActivity implements OnMapReadyCallback
 
         for(int i =  1; i<listPuntos.size()+1; i++){
             LatLng latLng = new LatLng(listPuntos.get(i).getLatitud(), listPuntos.get(i).getLongitud());
+            GroundOverlayOptions newarkMap = new GroundOverlayOptions()
+                    .image(BitmapDescriptorFactory.fromResource(R.drawable.fondo1))
+                    .anchor(0, 1)
+                    .transparency(0.5f)
+                    .position(latLng, 100f, 100f);
+
+
+            mMap.addGroundOverlay(newarkMap);
             polylineOptions.add(latLng);
+            polylineOptions.visible(true);
             MarkerOptions markerOptions = new MarkerOptions();
             markerOptions.position(latLng);
             markerOptions.title(listPuntos.get(i).getNombreLugar());
@@ -188,9 +192,7 @@ public class Activity_map extends FragmentActivity implements OnMapReadyCallback
 
         if (mLastLocation == null) {
             startLocationUpdates();
-        }
-
-        if (mLastLocation != null) {
+        }else if(mLastLocation != null) {
             while (mLatitude == 0 || mLongitude == 0) {
                 Toast.makeText(getApplicationContext(), "Getting Location", Toast.LENGTH_SHORT).show();
 
