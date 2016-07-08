@@ -72,7 +72,7 @@ public class RestClient {
         StringBuilder sb = new StringBuilder();
         try {
 
-            URL url = new URL("http://ws.xcloud.cl/user/login");
+            URL url = new URL("http://avedex.org/user/login");
             conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("POST");
             conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
@@ -130,7 +130,7 @@ public class RestClient {
         HttpURLConnection conn = null;
         StringBuilder sb = new StringBuilder();
         try {
-            URL url = new URL("http://ws.xcloud.cl/route");
+            URL url = new URL("http://avedex.org/route");
             conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("POST");
             conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
@@ -245,7 +245,7 @@ public class RestClient {
         HttpURLConnection conn = null;
         StringBuilder sb = new StringBuilder();
         try {
-            URL url = new URL("http://ws.xcloud.cl/user/new");
+            URL url = new URL("http://avedex.org/user/new");
             conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("POST");
             conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
@@ -300,7 +300,7 @@ public class RestClient {
         HttpURLConnection conn = null;
         StringBuilder sb = new StringBuilder();
         try {
-            URL url = new URL("http://ws.xcloud.cl/user/nacionalidad");
+            URL url = new URL("http://avedex.org/user/nacionalidad");
             conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("POST");
             conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");

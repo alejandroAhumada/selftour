@@ -5,4 +5,29 @@
     android:name="com.google.android.gms.maps.SupportMapFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="cl.selftourhamburger.Activity.Activity_map" />
+    tools:context="cl.selftourhamburger.Activity.Activity_map">
+
+    <Button
+    android:id="@+id/btnAudioPlay"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="right|top"
+    android:text="Demo Play"
+    android:padding="10dp"
+    android:layout_marginTop="60dp"
+    android:paddingRight="10dp"
+    android:shadowColor="@color/windowBackground"/>
+
+    <Button
+        android:id="@+id/btnAudioStop"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="left|top"
+        android:text="Demo Stop"
+        android:padding="10dp"
+        android:layout_marginTop="60dp"
+        android:paddingLeft="10dp"
+        android:shadowColor="@color/windowBackground"/>
+
+
+</fragment>

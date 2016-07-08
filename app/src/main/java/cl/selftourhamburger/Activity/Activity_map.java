@@ -10,12 +10,15 @@ import android.location.Criteria;
 import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -30,6 +33,7 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.GroundOverlayOptions;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 
@@ -48,19 +52,44 @@ public class Activity_map extends FragmentActivity implements OnMapReadyCallback
     private GoogleMap mMap;
     private GoogleApiClient mGoogleApiClient;
     private String nomRecorrido;
-    private HashMap<Integer,Puntos> listPuntos;
+    private HashMap<Integer, Puntos> listPuntos;
     protected Location mLastLocation;
+    protected Location myLocation;
     protected double mLatitude;
     protected double mLongitude;
     protected LocationRequest mLocationRequest;
     protected LocationManager manager;
     protected PolylineOptions polylineOptions;
     private Criteria req;
+    private Button play;
+    private Button stop;
+    private Marker mCurrLocation;
+    private LatLng latLng;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
+        play = (Button) this.findViewById(R.id.btnAudioPlay);
+        stop = (Button) this.findViewById(R.id.btnAudioStop);
+        play.setVisibility(View.INVISIBLE);
+        stop.setVisibility(View.INVISIBLE);
+
+        /*final MediaPlayer mp = MediaPlayer.create(this, R.raw.papa_negro);
+        play.setOnClickListener(new View.OnClickListener() {
+
+            public void onClick(View v) {
+                mp.create(getApplicationContext(), R.raw.papa_negro);
+                mp.start();
+            }
+        });
+
+        stop.setOnClickListener(new View.OnClickListener() {
+
+            public void onClick(View v) {
+                mp.pause();
+            }
+        });*/
 
         req = new Criteria();
 
@@ -86,10 +115,10 @@ public class Activity_map extends FragmentActivity implements OnMapReadyCallback
 
         boolean isGPSEnabled = manager.isProviderEnabled(LocationManager.GPS_PROVIDER);
 
-        if(!isGPSEnabled){
+        if (!isGPSEnabled) {
             Intent gpsOptionsIntent = new Intent(
                     android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-            Toast.makeText(getApplicationContext(),"Favor Habilitar GPS",Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), "Favor Habilitar GPS", Toast.LENGTH_SHORT).show();
             startActivity(gpsOptionsIntent);
         }
 
@@ -117,17 +146,92 @@ public class Activity_map extends FragmentActivity implements OnMapReadyCallback
         LatLng inicioRecorrido = new LatLng(listPuntos.get(1).getLatitud(), listPuntos.get(1).getLongitud());
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(inicioRecorrido, 13f));
 
+        createPolyline();
 
+        mMap.addPolyline(polylineOptions);
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
             mMap.setMyLocationEnabled(true);
 
-            createPolyline();
-
-            mMap.addPolyline(polylineOptions);
-        } else {
-
         }
+
+        mMap.setOnInfoWindowCloseListener(new GoogleMap.OnInfoWindowCloseListener() {
+            @Override
+            public void onInfoWindowClose(Marker marker) {
+                play.setVisibility(View.INVISIBLE);
+                stop.setVisibility(View.INVISIBLE);
+            }
+        });
+
+        mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+            @Override
+            public void onInfoWindowClick(Marker marker) {
+
+                if(marker.isInfoWindowShown()){
+                    play.setVisibility(View.VISIBLE);
+                    stop.setVisibility(View.VISIBLE);
+
+                    final MediaPlayer mp = MediaPlayer.create(getApplicationContext(), R.raw.papa_negro);
+                    play.setOnClickListener(new View.OnClickListener() {
+
+                        public void onClick(View v) {
+                            mp.create(getApplicationContext(), R.raw.papa_negro);
+                            mp.start();
+                        }
+                    });
+
+                    stop.setOnClickListener(new View.OnClickListener() {
+
+                        public void onClick(View v) {
+                            mp.pause();
+                        }
+                    });
+                }
+
+            }
+        });
+
+        /*mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+
+                final MediaPlayer mp = MediaPlayer.create(getApplicationContext(), R.raw.papa_negro);
+
+                mp.create(getApplicationContext(), R.raw.papa_negro);
+                mp.start();
+
+                return false;
+            }
+        });}*/
+
+
+
+        /*mMap.setOnMyLocationChangeListener(new GoogleMap.OnMyLocationChangeListener() {
+            @Override
+            public void onMyLocationChange(Location location) {
+
+                if (location.getLatitude() != 0 && location.getLongitude() != 0) {
+                    try {
+
+                        String getDireccion = getDireccionActual(location);
+
+                        if ("Román díaz 720".equalsIgnoreCase(getDireccion)) {
+                            Toast.makeText(Activity_map.this, "FUNCA LA GEOLOCALIZACION EN " + getDireccion, Toast.LENGTH_SHORT).show();
+                        } else if ("Román díaz 647".equalsIgnoreCase(getDireccion)) {
+                            Toast.makeText(Activity_map.this, "FUNCA LA GEOLOCALIZACION EN " + getDireccion, Toast.LENGTH_SHORT).show();
+                        }
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                if (mCurrLocation != null) {
+                    mCurrLocation.remove();
+                }
+
+            }
+        });*/
 
     }
 
@@ -135,7 +239,7 @@ public class Activity_map extends FragmentActivity implements OnMapReadyCallback
 
         polylineOptions = new PolylineOptions();
 
-        for(int i =  1; i<listPuntos.size()+1; i++){
+        for (int i = 1; i < listPuntos.size() + 1; i++) {
             LatLng latLng = new LatLng(listPuntos.get(i).getLatitud(), listPuntos.get(i).getLongitud());
             GroundOverlayOptions newarkMap = new GroundOverlayOptions()
                     .image(BitmapDescriptorFactory.fromResource(R.drawable.fondo1))
@@ -152,13 +256,13 @@ public class Activity_map extends FragmentActivity implements OnMapReadyCallback
             markerOptions.title(listPuntos.get(i).getNombreLugar());
             markerOptions.snippet(listPuntos.get(i).getDescLugar());
             int idMarca = listPuntos.get(i).getIdMarca();
-            if(idMarca == 1){
+            if (idMarca == 1) {
                 markerOptions.icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_directions_walk_black_36dp));
-            }else if(idMarca == 2){
+            } else if (idMarca == 2) {
                 markerOptions.icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_beenhere_black_36dp));
             }
             mMap.addMarker(markerOptions);
-           //mMap.addMarker(new MarkerOptions().position(latLng).title(listPuntos.get(i).getNombreLugar()));
+            //mMap.addMarker(new MarkerOptions().position(latLng).title(listPuntos.get(i).getNombreLugar()));
         }
     }
 
@@ -192,7 +296,7 @@ public class Activity_map extends FragmentActivity implements OnMapReadyCallback
 
         if (mLastLocation == null) {
             startLocationUpdates();
-        }else if(mLastLocation != null) {
+        } else if (mLastLocation != null) {
             while (mLatitude == 0 || mLongitude == 0) {
                 Toast.makeText(getApplicationContext(), "Getting Location", Toast.LENGTH_SHORT).show();
 
@@ -202,6 +306,9 @@ public class Activity_map extends FragmentActivity implements OnMapReadyCallback
                 mLongitude = mLastLocation.getLongitude();
 
                 if (mLatitude != 0 && mLongitude != 0) {
+
+                    //onLocationChanged(mLastLocation);
+
                     stopLocationUpdates();
                 }
             }
@@ -210,13 +317,13 @@ public class Activity_map extends FragmentActivity implements OnMapReadyCallback
 
     @Override
     public void onConnectionSuspended(int i) {
-        Log.i("TAG", "Connection suspended");
+        Toast.makeText(this, "onConnectionSuspended", Toast.LENGTH_SHORT).show();
         mGoogleApiClient.connect();
     }
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-        Log.i("TAG", "Connection failed: ConnectionResult.getErrorCode() = " + connectionResult.getErrorCode());
+        Toast.makeText(this, "onConnectionFailed", Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -274,7 +381,48 @@ public class Activity_map extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onLocationChanged(Location location) {
 
+        if (location.getLatitude() != 0 && location.getLongitude() != 0) {
+            try {
 
+                String getDireccion = getDireccionActual(location);
+                System.out.println(getDireccion);
+
+                if ("Román díaz 720".equalsIgnoreCase(getDireccion)) {
+                    Toast.makeText(Activity_map.this, "FUNCA LA GEOLOCALIZACION EN " + getDireccion, Toast.LENGTH_SHORT).show();
+                } else if ("Román díaz 647".equalsIgnoreCase(getDireccion)) {
+                    Toast.makeText(Activity_map.this, "FUNCA LA GEOLOCALIZACION EN " + getDireccion, Toast.LENGTH_SHORT).show();
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        if (mCurrLocation != null) {
+            mCurrLocation.remove();
+        }
+
+    }
+
+    private String getDireccionActual(Location location) {
+        android.location.Address address = null;
+        if (location.getLatitude() != 0.0 && location.getLongitude() != 0.0) {
+            try {
+                Geocoder geocoder = new Geocoder(this, Locale.getDefault());
+                List<android.location.Address> list = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
+
+                if (!list.isEmpty()) {
+                    address = list.get(0);
+                }
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+
+            }
+        }
+
+        return address.getAddressLine(0);
     }
 
     private HashMap<Integer, Puntos> getPuntos(String nomRecorrido) {
@@ -290,8 +438,8 @@ public class Activity_map extends FragmentActivity implements OnMapReadyCallback
                 "ID_MARCA",
                 "NOMBRE_TIPO_MARCA"};
 
-        String where = "NOMBRE_RECORRIDO = \""+nomRecorrido+"\"";
-        Cursor cursor = database.query("puntos_de_recorridos", columns, where, null,null, null, "POSICION");
+        String where = "NOMBRE_RECORRIDO = \"" + nomRecorrido + "\"";
+        Cursor cursor = database.query("puntos_de_recorridos", columns, where, null, null, null, "POSICION");
 
         if (cursor != null) {
             while (cursor.moveToNext()) {
@@ -309,8 +457,6 @@ public class Activity_map extends FragmentActivity implements OnMapReadyCallback
 
         return listPuntos;
     }
-
-
 
 
 }

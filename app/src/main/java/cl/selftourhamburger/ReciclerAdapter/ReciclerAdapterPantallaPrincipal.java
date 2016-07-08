@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -72,13 +73,13 @@ public class ReciclerAdapterPantallaPrincipal extends RecyclerView.Adapter<Recic
 
         public ImageView imagenRecorrido;
         public TextView txtDescripcionRecorrido;
-        public Button buttonIrMap;
+        public RelativeLayout buttonIrMap;
 
         public MyViewHolder(View v) {
             super(v);
             imagenRecorrido = (ImageView) v.findViewById(R.id.imageRecorrido);
             txtDescripcionRecorrido = (TextView) v.findViewById(R.id.textoresumenRecorrido);
-            buttonIrMap = (Button) v.findViewById(R.id.btn_map);
+            buttonIrMap = (RelativeLayout) v.findViewById(R.id.LytRecycler);
         }
     }
 }

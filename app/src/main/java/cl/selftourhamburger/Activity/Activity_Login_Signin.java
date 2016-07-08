@@ -3,9 +3,7 @@ package cl.selftourhamburger.Activity;
 import android.Manifest;
 import android.annotation.TargetApi;
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
@@ -20,8 +18,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.plus.Plus;
 import com.synnapps.carouselview.CarouselView;
 import com.synnapps.carouselview.ImageListener;
 
@@ -35,49 +31,25 @@ import cl.selftourhamburger.model.pojo.Nacionalidad;
 public class Activity_Login_Signin extends AppCompatActivity {
 
     CarouselView carouselView;
-    GoogleApiClient mGoogleApiClient;
+
     private RestClient restClient;
-    private SharedPreferences sp;
+
 
     private static final int MY_WRITE_EXTERNAL_STORAGE = 0;
     private static final int MY_FINE_LOCATION = 0;
     private static final int MY_READ_CONTACTS = 0;
     private View mLayout;
 
-    int[] sampleImages = {R.drawable.fondo1, R.drawable.fondo2, R.drawable.fondo3, R.drawable.fondo2};
+    int[] sampleImages = {R.drawable.fondo_final_2, R.drawable.fondo_final_3, R.drawable.fondo_final_4, R.drawable.fondo_final_5};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.lyt_activity_login_sign);
-        System.out.println("ENTRO EN CREATE OF Activity_Login_Signin");
-        sp = getApplicationContext().getSharedPreferences("cl.selftourhamburger", Context.MODE_MULTI_PROCESS);
-        boolean login = sp.getBoolean("login",false);
-
-        mGoogleApiClient = new GoogleApiClient.Builder(getApplicationContext())
-                .addApi(Plus.API)
-                .addScope(Plus.SCOPE_PLUS_LOGIN)
-                .build();
-        mGoogleApiClient.connect();
-
-        System.out.println("SharedPreference: "+login);
-        if (mGoogleApiClient.isConnected()) {
-            Intent intent = new Intent(Activity_Login_Signin.this, Activity_Pantalla_Principal.class);
-            startActivity(intent);
-        }else if(login){
-            Intent intent = new Intent(Activity_Login_Signin.this, Activity_Pantalla_Principal.class);
-            startActivity(intent);
-        }
 
         verifyPermission();
 
         new guardarNacionalidadesEnDBTask().execute();
-
-        mGoogleApiClient = new GoogleApiClient.Builder(getApplicationContext())
-                .addApi(Plus.API)
-                .addScope(Plus.SCOPE_PLUS_LOGIN)
-                .build();
-        mGoogleApiClient.connect();
 
         carouselView = (CarouselView) findViewById(R.id.carouselView);
         carouselView.setPageCount(sampleImages.length);
@@ -97,8 +69,8 @@ public class Activity_Login_Signin extends AppCompatActivity {
         switch (view.getId()) {
             case R.id.entrar_login:
 
-                 Intent intent = new Intent(Activity_Login_Signin.this, Activity_Login.class);
-                 startActivity(intent);
+                Intent intent = new Intent(Activity_Login_Signin.this, Activity_Login.class);
+                startActivity(intent);
 
 
                 break;
@@ -189,7 +161,7 @@ public class Activity_Login_Signin extends AppCompatActivity {
         if (ActivityCompat.shouldShowRequestPermissionRationale(this,
                 Manifest.permission.READ_CONTACTS)) {
             showSnackBar();
-        }else {
+        } else {
             requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
                     MY_WRITE_EXTERNAL_STORAGE);
 

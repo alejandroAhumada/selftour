@@ -15,4 +15,6 @@
     <string name="permission_write_storage">Permiso de escritura necesario.</string>
     <string name="permission_fine_location">Permiso de localizacion.</string>
     <string name="settings">Configuración</string>
+
+    <string name="loader_common">Cargando...</string>
 </resources>

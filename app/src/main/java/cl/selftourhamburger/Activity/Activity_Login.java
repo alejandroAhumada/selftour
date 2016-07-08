@@ -1,44 +1,45 @@
 package cl.selftourhamburger.Activity;
 
-        import android.app.Activity;
-        import android.content.ContentValues;
-        import android.content.Context;
-        import android.content.Intent;
-        import android.content.IntentSender;
-        import android.content.SharedPreferences;
-        import android.database.SQLException;
-        import android.database.sqlite.SQLiteDatabase;
-        import android.graphics.Bitmap;
-        import android.graphics.BitmapFactory;
-        import android.os.AsyncTask;
-        import android.os.Bundle;
-        import android.util.Log;
-        import android.view.Menu;
-        import android.view.View;
-        import android.widget.Button;
-        import android.widget.ImageView;
-        import android.widget.LinearLayout;
-        import android.widget.TextView;
-        import android.widget.Toast;
+import android.app.Activity;
+import android.content.ContentValues;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentSender;
+import android.content.SharedPreferences;
+import android.database.SQLException;
+import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.Menu;
+import android.view.View;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+import android.widget.Toast;
 
-        import com.google.android.gms.common.ConnectionResult;
-        import com.google.android.gms.common.GooglePlayServicesUtil;
-        import com.google.android.gms.common.SignInButton;
-        import com.google.android.gms.common.api.GoogleApiClient;
-        import com.google.android.gms.common.api.ResultCallback;
-        import com.google.android.gms.common.api.Status;
-        import com.google.android.gms.plus.Plus;
-        import com.google.android.gms.plus.model.people.Person;
+import com.afollestad.materialdialogs.MaterialDialog;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.common.SignInButton;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Status;
+import com.google.android.gms.plus.Plus;
+import com.google.android.gms.plus.model.people.Person;
 
-        import java.io.InputStream;
-        import java.util.List;
+import java.io.InputStream;
+import java.util.List;
 
-        import cl.selftourhamburger.DataBase.DataBaseHelper;
-        import cl.selftourhamburger.R;
-        import cl.selftourhamburger.RestClient.RestClient;
-        import cl.selftourhamburger.Util.AlertUtils;
-        import cl.selftourhamburger.model.pojo.Recorrido;
-        import cl.selftourhamburger.model.pojo.UsuarioIngresado;
+import cl.selftourhamburger.DataBase.DataBaseHelper;
+import cl.selftourhamburger.R;
+import cl.selftourhamburger.RestClient.RestClient;
+import cl.selftourhamburger.Util.AlertUtils;
+import cl.selftourhamburger.model.pojo.Recorrido;
+import cl.selftourhamburger.model.pojo.UsuarioIngresado;
 
 public class Activity_Login extends Activity implements View.OnClickListener,
         GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
@@ -72,6 +73,14 @@ public class Activity_Login extends Activity implements View.OnClickListener,
         super.onCreate(savedInstanceState);
         setContentView(cl.selftourhamburger.R.layout.activity_login);
 
+        sp = getApplicationContext().getSharedPreferences("cl.selftourhamburger", Context.MODE_MULTI_PROCESS);
+        boolean login = sp.getBoolean("login", false);
+
+        if (login) {
+            Intent intent = new Intent(Activity_Login.this, Activity_Pantalla_Principal.class);
+            startActivity(intent);
+        }//else {
+
         sp = getSharedPreferences("cl.selftourhamburger", Context.MODE_PRIVATE);
 
         btnSignIn = (SignInButton) findViewById(R.id.btn_sign_in);
@@ -91,6 +100,7 @@ public class Activity_Login extends Activity implements View.OnClickListener,
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this).addApi(Plus.API, Plus.PlusOptions.builder().build())
                 .addScope(Plus.SCOPE_PLUS_LOGIN).build();
+        //}
 
     }
 
@@ -134,7 +144,7 @@ public class Activity_Login extends Activity implements View.OnClickListener,
         @Override
         protected void onPostExecute(UsuarioIngresado usuarioIngresado) {
 
-            if(logeado.equalsIgnoreCase("selftour")){
+            if (logeado.equalsIgnoreCase("selftour")) {
                 if (!usuarioIngresado.getCanLogin()) {
 
                     AlertUtils.showErrorAlert(Activity_Login.this, "Error de Ingreso", "Credenciales Invalidas");
@@ -145,7 +155,7 @@ public class Activity_Login extends Activity implements View.OnClickListener,
                     Intent intent = new Intent(Activity_Login.this, Activity_Pantalla_Principal.class);
                     startActivity(intent);
                 }
-            }else {
+            } else {
                 if (!usuarioIngresado.getHaveLogon()) {
 
                     AlertUtils.showErrorAlert(Activity_Login.this, "Error de Ingreso", "Credenciales Invalidas");
@@ -244,7 +254,7 @@ public class Activity_Login extends Activity implements View.OnClickListener,
 
     /**
      * Method to resolve any signin errors
-     * */
+     */
     private void resolveSignInError() {
         if (mConnectionResult.hasResolution()) {
             try {
@@ -298,19 +308,21 @@ public class Activity_Login extends Activity implements View.OnClickListener,
     @Override
     public void onConnected(Bundle arg0) {
         mSignInClicked = false;
-        Toast.makeText(this, "User is connected!", Toast.LENGTH_LONG).show();
+        new MaterialDialog.Builder(this)
+                .title("Conectado!!")
+                .content("Dirigiendo a tu Destino")
+                .progress(true, 0)
+                .show();
 
-        // Get user's information
         getProfileInformation();
 
-        // Update the UI after signin
         updateUI(true);
 
     }
 
     /**
      * Updating the UI, showing/hiding buttons and profile layout
-     * */
+     */
     private void updateUI(boolean isSignedIn) {
         if (isSignedIn) {
             btnSignIn.setVisibility(View.GONE);
@@ -332,7 +344,7 @@ public class Activity_Login extends Activity implements View.OnClickListener,
 
     /**
      * Fetching user's information name, email, profile pic
-     * */
+     */
     private void getProfileInformation() {
         try {
             if (Plus.PeopleApi.getCurrentPerson(mGoogleApiClient) != null) {
@@ -383,7 +395,7 @@ public class Activity_Login extends Activity implements View.OnClickListener,
 
     /**
      * Button on click listener
-     * */
+     */
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
@@ -404,7 +416,7 @@ public class Activity_Login extends Activity implements View.OnClickListener,
 
     /**
      * Sign-in into google
-     * */
+     */
     private void signInWithGplus() {
         if (!mGoogleApiClient.isConnecting()) {
             mSignInClicked = true;
@@ -414,7 +426,7 @@ public class Activity_Login extends Activity implements View.OnClickListener,
 
     /**
      * Sign-out from google
-     * */
+     */
     private void signOutFromGplus() {
         if (mGoogleApiClient.isConnected()) {
             Plus.AccountApi.clearDefaultAccount(mGoogleApiClient);
@@ -426,7 +438,7 @@ public class Activity_Login extends Activity implements View.OnClickListener,
 
     /**
      * Revoking access from google
-     * */
+     */
     private void revokeGplusAccess() {
         if (mGoogleApiClient.isConnected()) {
             Plus.AccountApi.clearDefaultAccount(mGoogleApiClient);
@@ -445,7 +457,7 @@ public class Activity_Login extends Activity implements View.OnClickListener,
 
     /**
      * Background Async task to load user profile picture from url
-     * */
+     */
     private class LoadProfileImage extends AsyncTask<String, Void, Bitmap> {
         ImageView bmImage;
 

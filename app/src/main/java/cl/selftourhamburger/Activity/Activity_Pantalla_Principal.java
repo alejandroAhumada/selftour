@@ -17,7 +17,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.plus.Plus;
@@ -25,10 +24,8 @@ import com.google.android.gms.plus.Plus;
 import java.util.ArrayList;
 import java.util.List;
 
-import cl.selftourhamburger.Fragment.FiveFragment;
 import cl.selftourhamburger.Fragment.FourFragment;
 import cl.selftourhamburger.Fragment.OneFragment;
-import cl.selftourhamburger.Fragment.ThreeFragment;
 import cl.selftourhamburger.Fragment.TwoFragment;
 import cl.selftourhamburger.R;
 
@@ -43,9 +40,7 @@ public class Activity_Pantalla_Principal extends AppCompatActivity
     private int[] tabIcons = {
             R.mipmap.ic_home_white_24dp,
             R.mipmap.ic_map_white_24dp,
-            R.mipmap.ic_place_white_24dp,
             R.mipmap.ic_local_offer_white_24dp,
-            R.mipmap.ic_sentiment_very_satisfied_white_24dp
     };
 
     @Override
@@ -157,17 +152,13 @@ public class Activity_Pantalla_Principal extends AppCompatActivity
         tabLayout.getTabAt(0).setIcon(tabIcons[0]);
         tabLayout.getTabAt(1).setIcon(tabIcons[1]);
         tabLayout.getTabAt(2).setIcon(tabIcons[2]);
-        tabLayout.getTabAt(3).setIcon(tabIcons[3]);
-        tabLayout.getTabAt(4).setIcon(tabIcons[4]);
     }
 
     private void setupViewPager(ViewPager viewPager) {
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
-        adapter.addFrag(new OneFragment(), "Inicio");
-        adapter.addFrag(new TwoFragment(), "Modo Libre");
-        adapter.addFrag(new ThreeFragment(), "Puntos de Interes");
-        adapter.addFrag(new FourFragment(), "Eventos");
-        adapter.addFrag(new FiveFragment(), "Descubre");
+        adapter.addFrag(new OneFragment(), "Recorre");
+        adapter.addFrag(new TwoFragment(), "Explora");
+        adapter.addFrag(new FourFragment(), "Conoce");
         viewPager.setAdapter(adapter);
     }
 
