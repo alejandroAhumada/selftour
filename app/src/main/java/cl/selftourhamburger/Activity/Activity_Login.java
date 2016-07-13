@@ -1,13 +1,16 @@
 package cl.selftourhamburger.Activity;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
@@ -15,9 +18,12 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -32,6 +38,7 @@ import com.google.android.gms.plus.Plus;
 import com.google.android.gms.plus.model.people.Person;
 
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 
 import cl.selftourhamburger.DataBase.DataBaseHelper;
@@ -50,6 +57,7 @@ public class Activity_Login extends Activity implements View.OnClickListener,
     private String email;
     private String personPhotoUrl;
     private String personGooglePlusProfile;
+    private String nombreUsuarioRegistrado;
 
     /*VARIABLES LOGIN CON GOOGLE*/
     private static final int RC_SIGN_IN = 0;
@@ -75,11 +83,14 @@ public class Activity_Login extends Activity implements View.OnClickListener,
 
         sp = getApplicationContext().getSharedPreferences("cl.selftourhamburger", Context.MODE_MULTI_PROCESS);
         boolean login = sp.getBoolean("login", false);
+        String user = sp.getString("login_user","Vacio");
+        String destinoSeleccionado = getDestinoSelecionado(user);
 
         if (login) {
             Intent intent = new Intent(Activity_Login.this, Activity_Pantalla_Principal.class);
+            intent.putExtra("destinoSeleccionado",destinoSeleccionado);
             startActivity(intent);
-        }//else {
+        }
 
         sp = getSharedPreferences("cl.selftourhamburger", Context.MODE_PRIVATE);
 
@@ -131,6 +142,9 @@ public class Activity_Login extends Activity implements View.OnClickListener,
             setRecorridoABD(listRecorridos);
 
             if (usuarioIngresado.getCanLogin()) {
+
+                nombreUsuarioRegistrado = params[0];
+
                 sp.edit().putString("login_user", params[0]).apply();
                 sp.edit().putString("login_pass", params[1]).apply();
                 sp.edit().putBoolean("login", true).apply();
@@ -152,24 +166,164 @@ public class Activity_Login extends Activity implements View.OnClickListener,
 
                     Log.i("Activity_Login", "ActivityLogin OK...");
 
-                    Intent intent = new Intent(Activity_Login.this, Activity_Pantalla_Principal.class);
-                    startActivity(intent);
+                    String destinoSeleccionado = getDestinoSelecionado(usuarioIngresado.getNombre());
+
+                    if(destinoSeleccionado == null){
+                        showRadioButtonDialog(Activity_Login.this);
+                    }else{
+                        new MaterialDialog.Builder(Activity_Login.this)
+                                .title("Conectado!!")
+                                .content("Dirigiendo a tu Destino")
+                                .progress(true, 0)
+                                .show();
+
+                        Intent intent = new Intent(Activity_Login.this, Activity_Pantalla_Principal.class);
+                        intent.putExtra("destinoSeleccionado",destinoSeleccionado);
+                        startActivity(intent);
+                    }
                 }
             } else {
                 if (!usuarioIngresado.getHaveLogon()) {
 
                     AlertUtils.showErrorAlert(Activity_Login.this, "Error de Ingreso", "Credenciales Invalidas");
                 } else {
+                    sp = getSharedPreferences("cl.selftourhamburger", Context.MODE_PRIVATE);
+                    sp.edit().putString("login_user", email).apply();
 
-                    Log.i("Activity_Login", "ActivityLogin OK...");
+                    String destinoSeleccionado = getDestinoSelecionado(email);
 
-                    Intent intent = new Intent(Activity_Login.this, Activity_Pantalla_Principal.class);
-                    startActivity(intent);
+                    if(destinoSeleccionado == null){
+                        showRadioButtonDialog(Activity_Login.this);
+                    }else{
+                        new MaterialDialog.Builder(Activity_Login.this)
+                                .title("Conectado!!")
+                                .content("Dirigiendo a tu Destino")
+                                .progress(true, 0)
+                                .show();
+
+                        Intent intent = new Intent(Activity_Login.this, Activity_Pantalla_Principal.class);
+                        intent.putExtra("destinoSeleccionado",destinoSeleccionado);
+                        startActivity(intent);
+                    }
                 }
             }
 
 
         }
+    }
+
+    private void showRadioButtonDialog(final Activity_Login activity_login) {
+
+        // custom dialog
+        final Dialog dialog = new Dialog(this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.radiobutton_dialog);
+        List<String> listDestinos;
+
+        listDestinos = getListDestinos();
+
+        final RadioGroup rg = (RadioGroup) dialog.findViewById(R.id.radio_group);
+
+        for (int i = 0; i < listDestinos.size(); i++) {
+            RadioButton rb = new RadioButton(this); // dynamically creating RadioButton and adding to RadioGroup.
+            rb.setText(listDestinos.get(i));
+            rg.addView(rb);
+        }
+        Toast.makeText(this, "Selecciones su Destino", Toast.LENGTH_SHORT).show();
+        dialog.show();
+
+        rg.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                int childCount = group.getChildCount();
+                for (int x = 0; x < childCount; x++) {
+                    RadioButton btn = (RadioButton) group.getChildAt(x);
+                    if (btn.getId() == checkedId) {
+                        Log.e("selected RadioButton->", btn.getText().toString());
+                        activity_login.setTitle(btn.getText().toString());
+
+                        guardarDestinoUsuario(btn.getText().toString());
+
+                        new MaterialDialog.Builder(activity_login)
+                                    .title("Conectado!!")
+                                    .content("Dirigiendo a tu Destino")
+                                    .progress(true, 0)
+                                    .show();
+
+                            Intent intent = new Intent(Activity_Login.this, Activity_Pantalla_Principal.class);
+                            intent.putExtra("destinoSeleccionado",btn.getText().toString());
+                            startActivity(intent);
+
+                        //dialog.dismiss();
+                    }
+                }
+            }
+        });
+
+    }
+
+    private void guardarDestinoUsuario(String destinoSeleccionado) {
+        DataBaseHelper db = new DataBaseHelper(getApplicationContext());
+        SQLiteDatabase database = db.getWritableDatabase();
+
+        try {
+            ContentValues contentValues = new ContentValues();
+            database.beginTransaction();
+
+            contentValues.put("NOMBRE_USUARIO", nombreUsuarioRegistrado);
+            contentValues.put("NOMBRE_DESTINO", destinoSeleccionado);
+
+            database.insert("usuario_destino", null, contentValues);
+            database.setTransactionSuccessful();
+            database.endTransaction();
+
+        }catch (SQLiteException e){
+            e.printStackTrace();
+        }finally {
+            db.close();
+            database.close();
+        }
+
+    }
+
+    private List<String> getListDestinos() {
+
+        DataBaseHelper db = new DataBaseHelper(getApplicationContext());
+        SQLiteDatabase database = db.getWritableDatabase();
+
+        List<String> listDestinos = new ArrayList<>();
+        String[] columns = {"NOMBRE_DESTINO"};
+
+        Cursor cursor = database.query("destino_punto_interes", columns, null, null, "NOMBRE_DESTINO", null,null);
+
+        if (cursor != null) {
+            while (cursor.moveToNext()) {
+                listDestinos.add(cursor.getString(cursor.getColumnIndex("NOMBRE_DESTINO")));
+            }
+        }
+
+        return listDestinos;
+    }
+
+    private String getDestinoSelecionado(String nombre) {
+
+        DataBaseHelper db = new DataBaseHelper(getApplicationContext());
+        SQLiteDatabase database = db.getWritableDatabase();
+        String destino = null;
+        String[] column = {"NOMBRE_DESTINO"};
+
+        String where = "NOMBRE_USUARIO = "+"'"+nombre+"'";
+
+        Cursor cursor = database.query("usuario_destino", column, where, null, null, null, null);
+
+        if (cursor != null) {
+            while (cursor.moveToNext()) {
+                destino = cursor.getString(cursor.getColumnIndex("NOMBRE_DESTINO"));
+            }
+        }
+
+        return destino;
     }
 
     private void setUsuarioIngrsadoABD(UsuarioIngresado usuarioIngrsado) {
@@ -332,8 +486,6 @@ public class Activity_Login extends Activity implements View.OnClickListener,
 
             new LoginTask().execute(email, "redSocial", "google");
 
-            /*Intent intent = new Intent(Activity_Login.this, Activity_Pantalla_Principal.class);
-            startActivity(intent);*/
         } else {
             btnSignIn.setVisibility(View.VISIBLE);
             btnSignOut.setVisibility(View.GONE);
@@ -354,6 +506,8 @@ public class Activity_Login extends Activity implements View.OnClickListener,
                 personPhotoUrl = currentPerson.getImage().getUrl();
                 personGooglePlusProfile = currentPerson.getUrl();
                 email = Plus.AccountApi.getAccountName(mGoogleApiClient);
+
+                nombreUsuarioRegistrado = email;
 
                 Log.e(TAG, "Name: " + personName + ", plusProfile: "
                         + personGooglePlusProfile + ", email: " + email

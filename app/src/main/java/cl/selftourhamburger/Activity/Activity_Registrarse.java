@@ -1,6 +1,8 @@
 package cl.selftourhamburger.Activity;
 
 import android.app.Activity;
+import android.app.DatePickerDialog;
+import android.app.Dialog;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -8,50 +10,95 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.text.InputType;
 import android.util.Log;
+import android.view.Menu;
 import android.view.View;
-import android.widget.AdapterView;
+import android.view.Window;
 import android.widget.ArrayAdapter;
+import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
-import android.widget.TextView;
 import android.widget.Toast;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
+import java.util.Calendar;
 import java.util.List;
+import java.util.Locale;
 
 import cl.selftourhamburger.DataBase.DataBaseHelper;
+import cl.selftourhamburger.Listeners.ListenerSpnGenero;
 import cl.selftourhamburger.Listeners.ListenerSpnNacionalidad;
 import cl.selftourhamburger.R;
 import cl.selftourhamburger.RestClient.RestClient;
+import cl.selftourhamburger.model.pojo.Destino;
 import cl.selftourhamburger.model.pojo.Nacionalidad;
 import cl.selftourhamburger.model.pojo.Recorrido;
 import cl.selftourhamburger.model.pojo.RegistroUsuario;
+import android.view.View.OnClickListener;
+import android.app.DatePickerDialog;
+import android.app.DatePickerDialog.OnDateSetListener;
 
-public class Activity_Registrarse extends Activity {
+public class Activity_Registrarse extends Activity implements OnClickListener{
 
     private RestClient restClient;
     Spinner spinnerNacionalidades;
+    Spinner spinnerGenero;
     private SharedPreferences sp;
+    private String nombreUsuarioRegistrado;
+    private SimpleDateFormat dateFormatter;
+    private EditText fromDateEtxt;
+    private DatePickerDialog fromDatePickerDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.lyt_activity__registrarse);
 
+        dateFormatter = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+        findViewsById();
+        setDateTimeField();
+
         sp = getSharedPreferences("cl.selftourhamburger", Context.MODE_PRIVATE);
 
         spinnerNacionalidades = (Spinner) findViewById(R.id.spnNacionalidad);
         spinnerNacionalidades.setAdapter(getSpinnerAdapterNacionalidad());
-
         ListenerSpnNacionalidad listenerSpnNacionalidad = new ListenerSpnNacionalidad();
-
         spinnerNacionalidades.setOnItemSelectedListener(listenerSpnNacionalidad);
+
+        spinnerGenero = (Spinner) findViewById(R.id.spnGenero);
+        spinnerGenero.setAdapter(getSpinnerAdapterGenero());
+        ListenerSpnGenero listenerSpnGenero = new ListenerSpnGenero();
+        spinnerGenero.setOnItemSelectedListener(listenerSpnGenero);
+    }
+
+    private void setDateTimeField() {
+        fromDateEtxt.setOnClickListener(this);
+
+        Calendar newCalendar = Calendar.getInstance();
+        fromDatePickerDialog = new DatePickerDialog(this, new OnDateSetListener() {
+
+            public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
+                Calendar newDate = Calendar.getInstance();
+                newDate.set(year, monthOfYear, dayOfMonth);
+                fromDateEtxt.setText(dateFormatter.format(newDate.getTime()));
+            }
+
+        },newCalendar.get(Calendar.YEAR), newCalendar.get(Calendar.MONTH), newCalendar.get(Calendar.DAY_OF_MONTH));
+
+    }
+
+    private void findViewsById() {
+        fromDateEtxt = (EditText) findViewById(R.id.login_fechaNacimiento);
+        fromDateEtxt.setInputType(InputType.TYPE_NULL);
+        fromDateEtxt.requestFocus();
     }
 
     public void onClickRegistrarse(View view) {
@@ -64,7 +111,6 @@ public class Activity_Registrarse extends Activity {
                 EditText nombre = (EditText) findViewById(R.id.login_nombre);
                 EditText apellido = (EditText) findViewById(R.id.login_apellido);
                 EditText mail = (EditText) findViewById(R.id.login_mail);
-                EditText genero = (EditText) findViewById(R.id.login_genero);
                 EditText nombreUsuario = (EditText) findViewById(R.id.login_user);
                 EditText password = (EditText) findViewById(R.id.login_password);
                 EditText fechaNacimiento = (EditText) findViewById(R.id.login_fechaNacimiento);
@@ -73,11 +119,11 @@ public class Activity_Registrarse extends Activity {
                 registroUsuario.setNombre(nombre.getText().toString());
                 registroUsuario.setApellido(apellido.getText().toString());
                 registroUsuario.setMail(mail.getText().toString());
-                registroUsuario.setGenero(genero.getText().toString());
                 registroUsuario.setNombreUsuario(nombreUsuario.getText().toString());
                 registroUsuario.setPassword(password.getText().toString());
                 registroUsuario.setFechaNacimiento(fechaNacimiento.getText().toString());
                 registroUsuario.setNacionalidad(spinnerNacionalidades.getSelectedItemPosition());
+                registroUsuario.setGenero(spinnerGenero.getSelectedItem().toString());
 
 
                 new SigninTask().execute(registroUsuario);
@@ -93,8 +139,22 @@ public class Activity_Registrarse extends Activity {
         nacionalidad = getListNacionalidadesDeBD();
 
         ArrayAdapter<Nacionalidad> dataAdapter = new ArrayAdapter<>(this,
-                R.layout.spinner_btn, nacionalidad);
-        dataAdapter.setDropDownViewResource(R.layout.spinner_prod);
+                R.layout.spinner_nacionalidad_btn, nacionalidad);
+        dataAdapter.setDropDownViewResource(R.layout.spinner_nacionalidad_prod);
+
+        return dataAdapter;
+    }
+
+    private SpinnerAdapter getSpinnerAdapterGenero() {
+        List<String> listGenero = new ArrayList<>();
+
+        listGenero.add("Genero");
+        listGenero.add("Masculino");
+        listGenero.add("Femenino");
+
+        ArrayAdapter<String> dataAdapter = new ArrayAdapter<>(this,
+                R.layout.spinner_genero_btn, listGenero);
+        dataAdapter.setDropDownViewResource(R.layout.spinner_genero_prod);
 
         return dataAdapter;
     }
@@ -129,6 +189,20 @@ public class Activity_Registrarse extends Activity {
         return listNacionalidades;
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.main, menu);
+        return true;
+    }
+
+    @Override
+    public void onClick(View view) {
+        if(view == fromDateEtxt) {
+            fromDatePickerDialog.show();
+        }
+    }
+
     private class SigninTask extends AsyncTask<RegistroUsuario, Void, Integer> {
 
 
@@ -143,11 +217,16 @@ public class Activity_Registrarse extends Activity {
 
                 List<Recorrido> listRecorridos = restClient.getRecorridoDesdeServidor();
                 setRecorridoABD(listRecorridos);
+                List<Destino> listDestino = restClient.getDestino();
+                setDestinoABD(listDestino);
 
                 if(nextToLogin == 1){
+                    nombreUsuarioRegistrado = registroUsuario.getNombreUsuario();
                     sp.edit().putString("login_user", registroUsuario.getNombreUsuario()).apply();
                     sp.edit().putString("login_pass", registroUsuario.getPassword()).apply();
                     sp.edit().putBoolean("login", true).apply();
+
+                    guararLoginEnDB(registroUsuario);
                 }
 
                 this.finalize();
@@ -163,13 +242,77 @@ public class Activity_Registrarse extends Activity {
 
             if (nextToLogin == 1) {
 
-                System.out.println("REGISTRADO!!");
+                showRadioButtonDialog();
 
-                Intent intent = new Intent(Activity_Registrarse.this, Activity_Pantalla_Principal.class);
-                startActivity(intent);
             } else {
                 Toast.makeText(getApplicationContext(), "Registro fallido", Toast.LENGTH_SHORT).show();
             }
+        }
+    }
+
+    private void guararLoginEnDB(RegistroUsuario registroUsuario) {
+
+        DataBaseHelper db = new DataBaseHelper(getApplicationContext());
+        SQLiteDatabase database = db.getWritableDatabase();
+        database.delete("login", null, null);
+        try {
+
+
+            ContentValues contentValues = new ContentValues();
+            database.beginTransaction();
+
+            contentValues.put("NOMBRE", registroUsuario.getNombre());
+            contentValues.put("APELLIDO", registroUsuario.getApellido());
+            contentValues.put("MAIL", registroUsuario.getMail());
+
+            database.insert("login", null, contentValues);
+            database.setTransactionSuccessful();
+            database.endTransaction();
+
+
+        } catch (SQLException e) {
+            Log.e("Err setDestinoABD ", e.getMessage());
+        } finally {
+            db.close();
+            database.close();
+        }
+    }
+
+    private void setDestinoABD(List<Destino> listDestino) {
+
+        DataBaseHelper db = new DataBaseHelper(getApplicationContext());
+        SQLiteDatabase database = db.getWritableDatabase();
+        database.delete("destino_punto_interes", null, null);
+        try {
+            for (int i = 0; i < listDestino.size(); i++) {
+
+                for (int ii = 0; ii < listDestino.get(i).getListaPuntos().size(); ii++) {
+
+                    ContentValues contentValues = new ContentValues();
+                    database.beginTransaction();
+
+                    contentValues.put("NOMBRE_DESTINO", listDestino.get(i).getNombreDestino());
+                    contentValues.put("DESCRIPCION_DESTINO", listDestino.get(i).getDescripcionDelDestino());
+
+                    contentValues.put("NOMBRE_LUGAR", listDestino.get(i).getListaPuntos().get(ii).getNombreLugar());
+                    contentValues.put("DESCRIPCION_LUGAR", listDestino.get(i).getListaPuntos().get(ii).getDescLugar());
+                    contentValues.put("LATITUD", listDestino.get(i).getListaPuntos().get(ii).getLatitud());
+                    contentValues.put("LONGITUD", listDestino.get(i).getListaPuntos().get(ii).getLongitud());
+                    contentValues.put("ID_MARCA", listDestino.get(i).getListaPuntos().get(ii).getIdMarca());
+                    contentValues.put("NOMBRE_TIPO_MARCA", listDestino.get(i).getListaPuntos().get(ii).getNombreTmarca());
+
+                    database.insert("destino_punto_interes", null, contentValues);
+                    database.setTransactionSuccessful();
+                    database.endTransaction();
+                }
+
+            }
+
+        } catch (SQLException e) {
+            Log.e("Err setDestinoABD ", e.getMessage());
+        } finally {
+            db.close();
+            database.close();
         }
     }
 
@@ -211,5 +354,91 @@ public class Activity_Registrarse extends Activity {
             database.close();
         }
 
+    }
+
+    private void showRadioButtonDialog() {
+
+        // custom dialog
+        final Dialog dialog = new Dialog(this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.radiobutton_dialog);
+        List<String> listDestinos;
+
+        listDestinos = getListDestinos();
+
+        RadioGroup rg = (RadioGroup) dialog.findViewById(R.id.radio_group);
+
+        for(int i=0;i<listDestinos.size();i++){
+            RadioButton rb=new RadioButton(this); // dynamically creating RadioButton and adding to RadioGroup.
+            rb.setText(listDestinos.get(i));
+            rg.addView(rb);
+        }
+        Toast.makeText(this,"Selecciones su Destino",Toast.LENGTH_SHORT).show();
+        dialog.show();
+
+        rg.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                int childCount = group.getChildCount();
+                for (int x = 0; x < childCount; x++) {
+                    RadioButton btn = (RadioButton) group.getChildAt(x);
+                    if (btn.getId() == checkedId) {
+                        Log.e("selected RadioButton->",btn.getText().toString());
+
+                        guardarDestinoUsuario(btn.getText().toString());
+
+                        Intent intent = new Intent(Activity_Registrarse.this, Activity_Pantalla_Principal.class);
+                        intent.putExtra("destinoSeleccionado", btn.getText().toString());
+                        startActivity(intent);
+
+                    }
+                }
+            }
+        });
+
+    }
+
+    private void guardarDestinoUsuario(String destinoSeleccionado) {
+        DataBaseHelper db = new DataBaseHelper(getApplicationContext());
+        SQLiteDatabase database = db.getWritableDatabase();
+
+        try {
+            ContentValues contentValues = new ContentValues();
+            database.beginTransaction();
+
+            contentValues.put("NOMBRE_USUARIO", nombreUsuarioRegistrado);
+            contentValues.put("NOMBRE_DESTINO", destinoSeleccionado);
+
+            database.insert("usuario_destino", null, contentValues);
+            database.setTransactionSuccessful();
+            database.endTransaction();
+
+        }catch (SQLiteException e){
+            e.printStackTrace();
+        }finally {
+            db.close();
+            database.close();
+        }
+
+    }
+
+    private List<String> getListDestinos() {
+
+        DataBaseHelper db = new DataBaseHelper(getApplicationContext());
+        SQLiteDatabase database = db.getWritableDatabase();
+
+        List<String> listDestinos = new ArrayList<>();
+        String[] columns = {"NOMBRE_DESTINO"};
+
+        Cursor cursor = database.query("destino_punto_interes", columns, null, null, "NOMBRE_DESTINO", null,null);
+
+        if (cursor != null) {
+            while (cursor.moveToNext()) {
+                listDestinos.add(cursor.getString(cursor.getColumnIndex("NOMBRE_DESTINO")));
+            }
+        }
+
+        return listDestinos;
     }
 }

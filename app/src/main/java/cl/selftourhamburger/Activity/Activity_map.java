@@ -19,6 +19,7 @@ import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -74,22 +75,6 @@ public class Activity_map extends FragmentActivity implements OnMapReadyCallback
         stop = (Button) this.findViewById(R.id.btnAudioStop);
         play.setVisibility(View.INVISIBLE);
         stop.setVisibility(View.INVISIBLE);
-
-        /*final MediaPlayer mp = MediaPlayer.create(this, R.raw.papa_negro);
-        play.setOnClickListener(new View.OnClickListener() {
-
-            public void onClick(View v) {
-                mp.create(getApplicationContext(), R.raw.papa_negro);
-                mp.start();
-            }
-        });
-
-        stop.setOnClickListener(new View.OnClickListener() {
-
-            public void onClick(View v) {
-                mp.pause();
-            }
-        });*/
 
         req = new Criteria();
 
@@ -191,48 +176,6 @@ public class Activity_map extends FragmentActivity implements OnMapReadyCallback
             }
         });
 
-        /*mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
-            @Override
-            public boolean onMarkerClick(Marker marker) {
-
-                final MediaPlayer mp = MediaPlayer.create(getApplicationContext(), R.raw.papa_negro);
-
-                mp.create(getApplicationContext(), R.raw.papa_negro);
-                mp.start();
-
-                return false;
-            }
-        });}*/
-
-
-
-        /*mMap.setOnMyLocationChangeListener(new GoogleMap.OnMyLocationChangeListener() {
-            @Override
-            public void onMyLocationChange(Location location) {
-
-                if (location.getLatitude() != 0 && location.getLongitude() != 0) {
-                    try {
-
-                        String getDireccion = getDireccionActual(location);
-
-                        if ("Román díaz 720".equalsIgnoreCase(getDireccion)) {
-                            Toast.makeText(Activity_map.this, "FUNCA LA GEOLOCALIZACION EN " + getDireccion, Toast.LENGTH_SHORT).show();
-                        } else if ("Román díaz 647".equalsIgnoreCase(getDireccion)) {
-                            Toast.makeText(Activity_map.this, "FUNCA LA GEOLOCALIZACION EN " + getDireccion, Toast.LENGTH_SHORT).show();
-                        }
-
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-
-                if (mCurrLocation != null) {
-                    mCurrLocation.remove();
-                }
-
-            }
-        });*/
-
     }
 
     private void createPolyline() {
@@ -281,6 +224,14 @@ public class Activity_map extends FragmentActivity implements OnMapReadyCallback
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        }
+    }
+
+    public void onClickModoLibre(View view) {
+
+        switch (view.getId()) {
+            case cl.selftourhamburger.R.id.btnModoLibre:
+                onBackPressed();
         }
     }
 
@@ -385,7 +336,6 @@ public class Activity_map extends FragmentActivity implements OnMapReadyCallback
             try {
 
                 String getDireccion = getDireccionActual(location);
-                System.out.println(getDireccion);
 
                 if ("Román díaz 720".equalsIgnoreCase(getDireccion)) {
                     Toast.makeText(Activity_map.this, "FUNCA LA GEOLOCALIZACION EN " + getDireccion, Toast.LENGTH_SHORT).show();

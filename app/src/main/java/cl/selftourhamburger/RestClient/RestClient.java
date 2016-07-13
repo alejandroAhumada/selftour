@@ -15,6 +15,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import cl.selftourhamburger.model.pojo.Destino;
 import cl.selftourhamburger.model.pojo.Nacionalidad;
 import cl.selftourhamburger.model.pojo.Puntos;
 import cl.selftourhamburger.model.pojo.Recorrido;
@@ -81,9 +82,8 @@ public class RestClient {
             conn.getOutputStream().write(postDataBytes);
 
             String responseMessage = conn.getResponseMessage();
-            System.out.printf("RESPONSE: " + responseMessage);
+
             int status = conn.getResponseCode();
-            System.out.println(" STATUS " + status);
 
             BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
             String line;
@@ -106,7 +106,7 @@ public class RestClient {
         JSONObject json;
         try {
             json = new JSONObject(sb.toString());
-            System.out.println("JSON-LOGIN: " + json);
+
             usuarioIngresado.setCanLogin(json.getBoolean("canLogin"));
             usuarioIngresado.setHaveLogon(json.getBoolean("haveLogon"));
 
@@ -136,9 +136,8 @@ public class RestClient {
             conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
 
             String responseMessage = conn.getResponseMessage();
-            System.out.printf("RESPONSE: " + responseMessage);
+
             int status = conn.getResponseCode();
-            System.out.println(" STATUS " + status);
 
             BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
             String line;
@@ -148,7 +147,6 @@ public class RestClient {
 
             listRecorrido = getRecorrido(sb);
 
-            System.out.println("SB " + sb.toString());
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
@@ -254,9 +252,8 @@ public class RestClient {
             conn.getOutputStream().write(postDataBytes);
 
             String responseMessage = conn.getResponseMessage();
-            System.out.printf("RESPONSE_Resgistrar: " + responseMessage);
+
             int status = conn.getResponseCode();
-            System.out.println(" STATUS_Registrar " + status);
 
             BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
             String line;
@@ -278,13 +275,9 @@ public class RestClient {
         JSONObject json;
         try {
             json = new JSONObject(sb.toString());
-            System.out.println("JSON: " + json);
 
             nextToLogin = json.getInt("nextToLogin");
             String mensaje = json.getString("mensaje");
-
-            System.out.println("nextToLogin: " + nextToLogin);
-            System.out.println("mensaje: " + mensaje);
 
         } catch (JSONException e) {
             e.printStackTrace();
@@ -306,9 +299,7 @@ public class RestClient {
             conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
             String responseMessage = conn.getResponseMessage();
 
-            System.out.printf("RESPONSE: " + responseMessage);
             int status = conn.getResponseCode();
-            System.out.println(" STATUS " + status);
 
             BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
             String line;
@@ -318,7 +309,7 @@ public class RestClient {
 
             nacionalidad = getNacionalidades(sb);
 
-            System.out.println("SB " + sb.toString());
+
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
@@ -351,4 +342,158 @@ public class RestClient {
 
         return listNacionalidades;
     }
+
+    public List<Destino> getDestino() {
+
+        List<Destino> destinos = new ArrayList<>();
+
+        HttpURLConnection conn = null;
+        StringBuilder sb = new StringBuilder();
+        try {
+            URL url = new URL("http://avedex.org/openmap");
+            conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("POST");
+            conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+
+            BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
+            String line;
+            while ((line = in.readLine()) != null) {
+                sb.append(line);
+            }
+
+            destinos = getDestinos(sb);
+
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            conn.disconnect();
+        }
+
+        return destinos;
+    }
+
+    private static List<Destino> getDestinos(StringBuilder sb) {
+
+        List<Destino> listDestinos = new ArrayList<>();
+
+        try {
+
+            JSONArray array = new JSONArray(sb.toString());
+
+            for (int i = 0; i < array.length(); i++) {
+                Destino destino = new Destino();
+                List<Puntos> puntosList = new ArrayList<>();
+
+                JSONObject objectDestino = array.getJSONObject(i);
+                destino.setNombreDestino(objectDestino.getString("nombreDestino"));
+                destino.setDescripcionDelDestino(objectDestino.getString("descripcionDestino"));
+
+                JSONArray puntos = objectDestino.getJSONArray("puntos");
+
+                for (int ii = 0; ii < puntos.length(); ii++) {
+                    JSONObject objectPuntos = puntos.getJSONObject(ii);
+                    Puntos puntos1 = new Puntos();
+                    puntos1.setNombreLugar(objectPuntos.getString("nombreLugar"));
+                    puntos1.setDescLugar(objectPuntos.getString("descLugar"));
+                    puntos1.setLongitud(objectPuntos.getDouble("lng"));
+                    puntos1.setLatitud(objectPuntos.getDouble("lat"));
+                    puntos1.setIdMarca(objectPuntos.getInt("idMarca"));
+                    puntos1.setNombreTmarca(objectPuntos.getString("nombreTmarca"));
+
+                    puntosList.add(puntos1);
+
+                }
+
+                destino.setListaPuntos(puntosList);
+                listDestinos.add(destino);
+
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return listDestinos;
+    }
+
+    public static int updatePassword (String username, String passwordActual, String passwordNueva) {
+
+        Map<String, Object> params = new LinkedHashMap<>();
+        StringBuilder sb;
+        int resultadoCambioDePass = 0;
+        try {
+
+            params.put("user", username);
+            params.put("pass", passwordActual);
+            params.put("newpass", passwordNueva);
+
+            StringBuilder postData = new StringBuilder();
+            for (Map.Entry<String, Object> param : params.entrySet()) {
+                if (postData.length() != 0) postData.append('&');
+                postData.append(URLEncoder.encode(param.getKey(), "UTF-8"));
+                postData.append('=');
+                postData.append(URLEncoder.encode(String.valueOf(param.getValue()), "UTF-8"));
+            }
+
+            byte[] postDataBytes = postData.toString().getBytes("UTF-8");
+
+            sb = getStringParaJsonCambioPass(postDataBytes);
+            resultadoCambioDePass = getResultadoCambioDePass(sb);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return resultadoCambioDePass;
+    }
+
+    private static StringBuilder getStringParaJsonCambioPass(byte[] postDataBytes) {
+
+        HttpURLConnection conn = null;
+        StringBuilder sb = new StringBuilder();
+        try {
+
+            URL url = new URL("http://avedex.org/user/pass/change");
+            conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("POST");
+            conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+            conn.setRequestProperty("Content-Length", String.valueOf(postDataBytes.length));
+            conn.setDoOutput(true);
+            conn.getOutputStream().write(postDataBytes);
+
+            String responseMessage = conn.getResponseMessage();
+            int status = conn.getResponseCode();
+
+            BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
+            String line;
+            while ((line = in.readLine()) != null) {
+                sb.append(line);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            conn.disconnect();
+        }
+
+        return sb;
+    }
+
+    private static int getResultadoCambioDePass(StringBuilder sb) {
+
+        int getResultadoCambioDePass = 0;
+
+        JSONObject json;
+        try {
+            json = new JSONObject(sb.toString());
+
+            getResultadoCambioDePass = json.getInt("success");
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return getResultadoCambioDePass;
+    }
+
 }

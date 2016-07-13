@@ -43,6 +43,27 @@ public class DataBaseHelper extends SQLiteOpenHelper {
                     "\t\"NACIONALIDAD\" VARCHAR(255)\n" +
                     ");\n";
 
+    private static final String DESTINO_CREATE_TABLE =
+            "CREATE TABLE destino_punto_interes (\n" +
+                    "\t\n" +
+                    "\t\"ID_DESTINO\" INTEGER PRIMARY KEY AUTOINCREMENT,\n" +
+                    "\t\"NOMBRE_DESTINO\" VARCHAR(255),\n" +
+                    "\t\"DESCRIPCION_DESTINO\" VARCHAR(255),\n" +
+                    "\t\"NOMBRE_LUGAR\" VARCHAR(255),\n" +
+                    "\t\"DESCRIPCION_LUGAR\" VARCHAR(255),\n" +
+                    "\t\"LATITUD\" VARCHAR(255),\n" +
+                    "\t\"LONGITUD\" VARCHAR(255),\n" +
+                    "\t\"ID_MARCA\" INTEGER,\n" +
+                    "\t\"NOMBRE_TIPO_MARCA\" VARCHAR(255)\n" +
+                    ");\n";
+
+    private static final String USUARIO_DESTINO =
+            "CREATE TABLE usuario_destino (\n" +
+                    "\t\n" +
+                    "\t\"NOMBRE_USUARIO\" VARCHAR(255),\n" +
+                    "\t\"NOMBRE_DESTINO\" VARCHAR(255)\n" +
+                    ");\n";
+
     public DataBaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
@@ -52,10 +73,13 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         db.execSQL(LOGIN_CREATE_TABLE);
         db.execSQL(RECORRIDO_CREATE_TABLE);
         db.execSQL(NACIONALIDADES_CREATE_TABLE);
+        db.execSQL(DESTINO_CREATE_TABLE);
+        db.execSQL(USUARIO_DESTINO);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.execSQL("DROP TABLE IF EXISTS " + "puntos_de_recorridos");
+        db.execSQL("DROP TABLE IF EXISTS " + "destino_punto_interes");
     }
 }

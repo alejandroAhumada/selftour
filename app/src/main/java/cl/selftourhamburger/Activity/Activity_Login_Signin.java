@@ -26,6 +26,7 @@ import java.util.List;
 import cl.selftourhamburger.DataBase.DataBaseHelper;
 import cl.selftourhamburger.R;
 import cl.selftourhamburger.RestClient.RestClient;
+import cl.selftourhamburger.model.pojo.Destino;
 import cl.selftourhamburger.model.pojo.Nacionalidad;
 
 public class Activity_Login_Signin extends AppCompatActivity {
@@ -98,8 +99,12 @@ public class Activity_Login_Signin extends AppCompatActivity {
 
             restClient = new RestClient();
             List<Nacionalidad> listNacionalidades = restClient.getNacionalidad();
-
             guardarNacionalidadesEnBD(listNacionalidades);
+
+            List<Destino> listDestino = restClient.getDestino();
+            setDestinoABD(listDestino);
+
+
 
             return null;
         }
@@ -130,6 +135,44 @@ public class Activity_Login_Signin extends AppCompatActivity {
             database.close();
         }
 
+    }
+
+    private void setDestinoABD(List<Destino> listDestino) {
+
+        DataBaseHelper db = new DataBaseHelper(getApplicationContext());
+        SQLiteDatabase database = db.getWritableDatabase();
+        database.delete("destino_punto_interes", null, null);
+        try {
+            for (int i = 0; i < listDestino.size(); i++) {
+
+                for (int ii = 0; ii < listDestino.get(i).getListaPuntos().size(); ii++) {
+
+                    ContentValues contentValues = new ContentValues();
+                    database.beginTransaction();
+
+                    contentValues.put("NOMBRE_DESTINO", listDestino.get(i).getNombreDestino());
+                    contentValues.put("DESCRIPCION_DESTINO", listDestino.get(i).getDescripcionDelDestino());
+
+                    contentValues.put("NOMBRE_LUGAR", listDestino.get(i).getListaPuntos().get(ii).getNombreLugar());
+                    contentValues.put("DESCRIPCION_LUGAR", listDestino.get(i).getListaPuntos().get(ii).getDescLugar());
+                    contentValues.put("LATITUD", listDestino.get(i).getListaPuntos().get(ii).getLatitud());
+                    contentValues.put("LONGITUD", listDestino.get(i).getListaPuntos().get(ii).getLongitud());
+                    contentValues.put("ID_MARCA", listDestino.get(i).getListaPuntos().get(ii).getIdMarca());
+                    contentValues.put("NOMBRE_TIPO_MARCA", listDestino.get(i).getListaPuntos().get(ii).getNombreTmarca());
+
+                    database.insert("destino_punto_interes", null, contentValues);
+                    database.setTransactionSuccessful();
+                    database.endTransaction();
+                }
+
+            }
+
+        } catch (SQLException e) {
+            Log.e("Err setDestinoABD ", e.getMessage());
+        } finally {
+            db.close();
+            database.close();
+        }
     }
 
     @TargetApi(Build.VERSION_CODES.M)

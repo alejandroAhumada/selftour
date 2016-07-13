@@ -70,24 +70,10 @@
                 android:inputType="none|textAutoComplete"/>
 
             <EditText
-                android:id="@+id/login_genero"
-                android:layout_width="match_parent"
-                android:layout_height="25dp"
-                android:layout_below="@id/login_mail"
-                android:layout_centerHorizontal="true"
-                android:layout_marginTop="20dp"
-                android:background="@drawable/edittext_stroke"
-                android:drawablePadding="10dp"
-                android:ems="10"
-                android:imeOptions="actionNext"
-                android:hint="Genero"
-                android:inputType="none|textAutoComplete"/>
-
-            <EditText
                 android:id="@+id/login_user"
                 android:layout_width="match_parent"
                 android:layout_height="25dp"
-                android:layout_below="@id/login_genero"
+                android:layout_below="@id/login_mail"
                 android:layout_centerHorizontal="true"
                 android:layout_marginTop="20dp"
                 android:background="@drawable/edittext_stroke"
@@ -136,6 +122,20 @@
                 android:layout_marginRight="5dp"
                 android:prompt="@string/nacionalidad"
                 android:spinnerMode="dialog"/>
+
+            <Spinner
+                android:id="@+id/spnGenero"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/spnNacionalidad"
+                android:layout_marginTop="20dp"
+                android:gravity="center"
+                android:layout_centerHorizontal="true"
+                android:layout_marginRight="5dp"
+                android:prompt="@string/genero"
+                android:spinnerMode="dialog"/>
+
+
 
         </RelativeLayout>
 

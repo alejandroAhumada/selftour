@@ -2,27 +2,19 @@ package cl.selftourhamburger.ReciclerAdapter;
 
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import cl.selftourhamburger.Activity.Activity_Pantalla_Principal;
 import cl.selftourhamburger.Activity.Activity_map;
-import cl.selftourhamburger.DataBase.DataBaseHelper;
-import cl.selftourhamburger.Fragment.OneFragment;
 import cl.selftourhamburger.R;
-import cl.selftourhamburger.model.pojo.Puntos;
 import cl.selftourhamburger.model.pojo.Recorrido;
 
 /**

@@ -11,6 +11,7 @@
     <string name="btn_logout_from_google">Logout from Google</string>
     <string name="btn_revoke_access">Revoke Access</string>
     <string name="nacionalidad">Nacionalidad</string>
+    <string name="genero">Genero</string>
 
     <string name="permission_write_storage">Permiso de escritura necesario.</string>
     <string name="permission_fine_location">Permiso de localizacion.</string>

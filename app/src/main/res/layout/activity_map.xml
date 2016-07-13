@@ -7,27 +7,52 @@
     android:layout_height="match_parent"
     tools:context="cl.selftourhamburger.Activity.Activity_map">
 
+    <RelativeLayout
+        android:id="@+id/lytReproduccion"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
     <Button
-    android:id="@+id/btnAudioPlay"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_gravity="right|top"
-    android:text="Demo Play"
-    android:padding="10dp"
-    android:layout_marginTop="60dp"
-    android:paddingRight="10dp"
-    android:shadowColor="@color/windowBackground"/>
+        android:id="@+id/btnAudioPlay"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+
+        android:layout_marginTop="60dp"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentBottom="true"
+        android:layout_toLeftOf="@+id/btnModoLibre"
+        android:padding="10dp"
+        android:paddingRight="10dp"
+        android:background="@color/colorLogoSelfTour"
+        android:text="Play" />
+
+    <Button
+        android:id="@+id/btnModoLibre"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true"
+        android:paddingRight="5dp"
+        android:paddingLeft="5dp"
+        android:text="Detener Recorrido"
+        android:background="@color/wallet_bright_foreground_holo_dark"
+        android:onClick="onClickModoLibre"/>
 
     <Button
         android:id="@+id/btnAudioStop"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="left|top"
-        android:text="Demo Stop"
-        android:padding="10dp"
+
         android:layout_marginTop="60dp"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        android:layout_toRightOf="@+id/btnModoLibre"
+        android:padding="10dp"
         android:paddingLeft="10dp"
-        android:shadowColor="@color/windowBackground"/>
+        android:background="#4b5356"
+        android:text="Stop" />
+
+    </RelativeLayout>
 
 
 </fragment>

@@ -26,9 +26,9 @@ import cl.selftourhamburger.model.pojo.Recorrido;
 /**
  * Created by Alejandro on 03-06-2016.
  */
-public class OneFragment extends Fragment {
+public class FragmentRecorre extends Fragment {
 
-    public OneFragment() {
+    public FragmentRecorre() {
         // Required empty public constructor
     }
 
@@ -44,7 +44,7 @@ public class OneFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_one, container, false);
+        View view = inflater.inflate(R.layout.fragment_recorre, container, false);
         carouselView = (CarouselView) view.findViewById(R.id.carouselViewOneFragment);
         carouselView.setPageCount(sampleImages.length);
         carouselView.setImageListener(imageListener);
@@ -86,7 +86,6 @@ public class OneFragment extends Fragment {
             }
         }
 
-        System.out.println("listRecorrido: " + listRecorrido.size());
         return listRecorrido;
     }
 

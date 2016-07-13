@@ -1,8 +1,12 @@
 package cl.selftourhamburger.Activity;
 
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
@@ -15,8 +19,18 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.Window;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
+import android.widget.Switch;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.plus.Plus;
@@ -24,10 +38,15 @@ import com.google.android.gms.plus.Plus;
 import java.util.ArrayList;
 import java.util.List;
 
-import cl.selftourhamburger.Fragment.FourFragment;
-import cl.selftourhamburger.Fragment.OneFragment;
-import cl.selftourhamburger.Fragment.TwoFragment;
+import cl.selftourhamburger.DataBase.DataBaseHelper;
+import cl.selftourhamburger.Fragment.FragmentConoce;
+import cl.selftourhamburger.Fragment.FragmentRecorre;
+import cl.selftourhamburger.Fragment.FragmentExplora;
 import cl.selftourhamburger.R;
+import cl.selftourhamburger.RestClient.RestClient;
+import cl.selftourhamburger.Util.AlertUtils;
+import cl.selftourhamburger.model.pojo.Recorrido;
+import cl.selftourhamburger.model.pojo.UsuarioIngresado;
 
 public class Activity_Pantalla_Principal extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -42,12 +61,20 @@ public class Activity_Pantalla_Principal extends AppCompatActivity
             R.mipmap.ic_map_white_24dp,
             R.mipmap.ic_local_offer_white_24dp,
     };
+    private RestClient restClient;
+    private Dialog dialog = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(cl.selftourhamburger.R.layout.activity_main);
 
+        String destinoSeleccionado = getIntent().getStringExtra("destinoSeleccionado");
+        if(destinoSeleccionado != null){
+            this.setTitle(destinoSeleccionado);
+        }
+
+        restClient = new RestClient();
         sp = getApplicationContext().getSharedPreferences("cl.selftourhamburger", Context.MODE_MULTI_PROCESS);
 
         mGoogleApiClient = new GoogleApiClient.Builder(getApplicationContext())
@@ -63,6 +90,7 @@ public class Activity_Pantalla_Principal extends AppCompatActivity
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         viewPager = (ViewPager) findViewById(R.id.viewpager);
+        viewPager.setOffscreenPageLimit(0);
         setupViewPager(viewPager);
 
         tabLayout = (TabLayout) findViewById(R.id.tabs);
@@ -121,17 +149,63 @@ public class Activity_Pantalla_Principal extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == cl.selftourhamburger.R.id.nav_camera) {
+        if (id == R.id.destinos) {
+
+            showRadioButtonDialog(this);
+
             // Handle the camera action
-        } else if (id == cl.selftourhamburger.R.id.nav_gallery) {
+            //} else if (id == cl.selftourhamburger.R.id.nav_gallery) {
 
-        } else if (id == cl.selftourhamburger.R.id.nav_slideshow) {
+            //} else if (id == cl.selftourhamburger.R.id.nav_slideshow) {
 
-        } else if (id == cl.selftourhamburger.R.id.nav_manage) {
+            //} else if (id == cl.selftourhamburger.R.id.nav_manage) {
 
         } else if (id == cl.selftourhamburger.R.id.nav_share) {
 
-        } else if (id == cl.selftourhamburger.R.id.nav_send) {
+            dialog = new Dialog(this);
+
+            dialog.setContentView(R.layout.custom_dialog);
+            dialog.setTitle("Custom Alert Dialog");
+
+            final EditText txtContraseñaActual = (EditText) dialog.findViewById(R.id.ContraseñaActual);
+            final EditText txtContraseñaNueva = (EditText) dialog.findViewById(R.id.ContraseñaNueva);
+            final EditText txtConfirmarNuevaContraseña = (EditText) dialog.findViewById(R.id.ConfirmarNuevaContraseña);
+
+            Button btnSave = (Button) dialog.findViewById(R.id.save);
+            Button btnCancel = (Button) dialog.findViewById(R.id.cancel);
+
+            btnCancel.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    dialog.dismiss();
+                }
+            });
+
+            btnSave.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                    String user = sp.getString("login_user", "vacio");
+
+                    final String contraseñaActual = txtContraseñaActual.getText().toString();
+                    final String contraseñaNueva = txtContraseñaNueva.getText().toString();
+                    final String confirmarNuevaContraseña = txtConfirmarNuevaContraseña.getText().toString();
+
+                    if (contraseñaNueva.equalsIgnoreCase(confirmarNuevaContraseña)) {
+
+                        new CambioDePassTask().execute(user, contraseñaActual, contraseñaNueva);
+
+                    } else {
+                        AlertUtils.showErrorAlert(Activity_Pantalla_Principal.this, "Cambio de Password Fallido", "Contraseñas no coinciden,\n Favor volver a intentar");
+                    }
+
+
+                }
+            });
+
+            dialog.show();
+
+        } else if (id == cl.selftourhamburger.R.id.cerrarSecion) {
 
             sp.edit().remove("login_user").commit();
             sp.edit().remove("login_pass").commit();
@@ -156,9 +230,9 @@ public class Activity_Pantalla_Principal extends AppCompatActivity
 
     private void setupViewPager(ViewPager viewPager) {
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
-        adapter.addFrag(new OneFragment(), "Recorre");
-        adapter.addFrag(new TwoFragment(), "Explora");
-        adapter.addFrag(new FourFragment(), "Conoce");
+        adapter.addFrag(new FragmentRecorre(), "Recorre");
+        adapter.addFrag(new FragmentExplora(), "Explora");
+        adapter.addFrag(new FragmentConoce(), "Conoce");
         viewPager.setAdapter(adapter);
     }
 
@@ -197,5 +271,96 @@ public class Activity_Pantalla_Principal extends AppCompatActivity
             mGoogleApiClient.disconnect();
             mGoogleApiClient.connect();
         }
+    }
+
+    private class CambioDePassTask extends AsyncTask<String, Void, Integer> {
+
+        String logeado;
+
+        @Override
+        protected Integer doInBackground(String... params) {
+
+            String user = params[0];
+            String passActual = params[1];
+            String passNueva = params[2];
+
+            int resultado = restClient.updatePassword(user, passActual, passNueva);
+
+            return resultado;
+        }
+
+        @Override
+        protected void onPostExecute(Integer resultado) {
+
+            switch (resultado) {
+                case 0:
+                    AlertUtils.showErrorAlert(Activity_Pantalla_Principal.this, "Cambio de Password Fallido", "Error al Intentar Cambiar Password. Volver a Intentar");
+                    break;
+                case 1:
+                    AlertUtils.showErrorAlert(Activity_Pantalla_Principal.this, "Cambio de Password Exitoso", "Contraseñas cambiada Exitosamente");
+                    dialog.dismiss();
+                    break;
+                case 2:
+                    AlertUtils.showErrorAlert(Activity_Pantalla_Principal.this, "Cambio de Password Fallido", "Contraseñas Actual Incorrecta, Favor volver a intentar");
+                    break;
+            }
+        }
+    }
+
+    private void showRadioButtonDialog(final Activity_Pantalla_Principal activity_pantalla_principal) {
+
+        // custom dialog
+        final Dialog dialog = new Dialog(this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.radiobutton_dialog);
+        List<String> listDestinos;
+
+        listDestinos = getListDestinos();
+
+        final RadioGroup rg = (RadioGroup) dialog.findViewById(R.id.radio_group);
+
+        for (int i = 0; i < listDestinos.size(); i++) {
+            RadioButton rb = new RadioButton(this); // dynamically creating RadioButton and adding to RadioGroup.
+            rb.setText(listDestinos.get(i));
+            rg.addView(rb);
+        }
+        Toast.makeText(this, "Selecciones su Destino", Toast.LENGTH_SHORT).show();
+        dialog.show();
+
+        rg.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                int childCount = group.getChildCount();
+                for (int x = 0; x < childCount; x++) {
+                    RadioButton btn = (RadioButton) group.getChildAt(x);
+                    if (btn.getId() == checkedId) {
+                        Log.e("selected RadioButton->", btn.getText().toString());
+                        activity_pantalla_principal.setTitle(btn.getText().toString());
+                        dialog.dismiss();
+                    }
+                }
+            }
+        });
+
+    }
+
+    private List<String> getListDestinos() {
+
+        DataBaseHelper db = new DataBaseHelper(getApplicationContext());
+        SQLiteDatabase database = db.getWritableDatabase();
+
+        List<String> listDestinos = new ArrayList<>();
+        String[] columns = {"NOMBRE_DESTINO"};
+
+        Cursor cursor = database.query("destino_punto_interes", columns, null, null, "NOMBRE_DESTINO", null, null);
+
+        if (cursor != null) {
+            while (cursor.moveToNext()) {
+                listDestinos.add(cursor.getString(cursor.getColumnIndex("NOMBRE_DESTINO")));
+            }
+        }
+
+        return listDestinos;
     }
 }
