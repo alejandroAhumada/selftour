@@ -90,7 +90,7 @@ public class Activity_Pantalla_Principal extends AppCompatActivity
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         viewPager = (ViewPager) findViewById(R.id.viewpager);
-        viewPager.setOffscreenPageLimit(0);
+        viewPager.setOffscreenPageLimit(3);
         setupViewPager(viewPager);
 
         tabLayout = (TabLayout) findViewById(R.id.tabs);
@@ -357,6 +357,7 @@ public class Activity_Pantalla_Principal extends AppCompatActivity
 
         if (cursor != null) {
             while (cursor.moveToNext()) {
+                System.out.println("DESTINO: "+cursor.getString(cursor.getColumnIndex("NOMBRE_DESTINO")));
                 listDestinos.add(cursor.getString(cursor.getColumnIndex("NOMBRE_DESTINO")));
             }
         }

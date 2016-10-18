@@ -2,6 +2,7 @@ package cl.selftourhamburger.ReciclerAdapter;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -37,6 +38,7 @@ public class ReciclerAdapterPantallaPrincipal extends RecyclerView.Adapter<Recic
 
     @Override
     public void onBindViewHolder(MyViewHolder itemsViewHolder, final int i) {
+        Resources resources= context.getResources();
         itemsViewHolder.txtDescripcionRecorrido.setText(items.get(i).getDescripcionRecorrido());
         itemsViewHolder.buttonIrMap.setOnClickListener(new View.OnClickListener() {
 

@@ -235,7 +235,6 @@ public class RestClient {
         }
 
         return nextToLogin;
-
     }
 
     private static StringBuilder getStringParaJsonRegistrar(byte[] postDataBytes) {
@@ -374,7 +373,7 @@ public class RestClient {
     }
 
     private static List<Destino> getDestinos(StringBuilder sb) {
-
+        System.out.println("SB: "+sb.toString());
         List<Destino> listDestinos = new ArrayList<>();
 
         try {

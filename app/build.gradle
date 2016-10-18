@@ -12,6 +12,11 @@ android {
         versionName "1.0"
         multiDexEnabled true
     }
+
+    dexOptions {
+        javaMaxHeapSize "4g"
+    }
+
     buildTypes {
         release {
             minifyEnabled false
@@ -37,4 +42,6 @@ dependencies {
     compile 'com.google.android.gms:play-services:9.0.0'
     compile 'com.afollestad.material-dialogs:core:0.8.6.1'
     compile 'com.github.aakira:expandable-layout:1.5.1@aar'
+    compile 'com.pubnub:pubnub-android:3.7.10'
+    compile 'com.google.maps.android:android-maps-utils:0.3.4'
 }

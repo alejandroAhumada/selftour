@@ -4,11 +4,11 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Color;
 import android.location.Criteria;
 import android.location.Geocoder;
 import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
@@ -19,33 +19,34 @@ import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.GroundOverlayOptions;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.maps.android.SphericalUtil;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
-import cl.selftourhamburger.DataBase.DataBaseHelper;
 import cl.selftourhamburger.R;
+import cl.selftourhamburger.Util.UtilMap;
+import cl.selftourhamburger.Util.audiosDePruebaListener;
 import cl.selftourhamburger.model.pojo.Puntos;
+
+//import com.google.android.gms.location.LocationListener;
 
 public class Activity_map extends FragmentActivity implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener, LocationListener {
@@ -55,7 +56,6 @@ public class Activity_map extends FragmentActivity implements OnMapReadyCallback
     private String nomRecorrido;
     private HashMap<Integer, Puntos> listPuntos;
     protected Location mLastLocation;
-    protected Location myLocation;
     protected double mLatitude;
     protected double mLongitude;
     protected LocationRequest mLocationRequest;
@@ -64,8 +64,8 @@ public class Activity_map extends FragmentActivity implements OnMapReadyCallback
     private Criteria req;
     private Button play;
     private Button stop;
-    private Marker mCurrLocation;
-    private LatLng latLng;
+    private HashMap<LatLng,Puntos> hashPuntos;
+    private MediaPlayer mp;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,7 +75,7 @@ public class Activity_map extends FragmentActivity implements OnMapReadyCallback
         stop = (Button) this.findViewById(R.id.btnAudioStop);
         play.setVisibility(View.INVISIBLE);
         stop.setVisibility(View.INVISIBLE);
-
+        mp = new MediaPlayer();
         req = new Criteria();
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -84,14 +84,18 @@ public class Activity_map extends FragmentActivity implements OnMapReadyCallback
 
         Bundle bundle = getIntent().getExtras();
         this.nomRecorrido = bundle.getString("nomRecorrido");
-        listPuntos = getPuntos(this.nomRecorrido);
+        listPuntos = UtilMap.getPuntos(this.nomRecorrido, getApplicationContext());
+        createHashIdLatLng();
 
         manager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
 
-        saberSiEstaActivoElGPS();
-
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
         }
+
+        manager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 3000, 5, this);
+        //manager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 5000, 5, this);
+
+        saberSiEstaActivoElGPS();
 
         buildGoogleApiClient();
     }
@@ -106,10 +110,7 @@ public class Activity_map extends FragmentActivity implements OnMapReadyCallback
             Toast.makeText(getApplicationContext(), "Favor Habilitar GPS", Toast.LENGTH_SHORT).show();
             startActivity(gpsOptionsIntent);
         }
-
-
     }
-
 
     protected synchronized void buildGoogleApiClient() {
         mGoogleApiClient = new GoogleApiClient.Builder(this)
@@ -123,10 +124,10 @@ public class Activity_map extends FragmentActivity implements OnMapReadyCallback
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         mMap.getUiSettings().setMyLocationButtonEnabled(true);
+        mMap.setMyLocationEnabled(true);
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
         }
-        mMap.setMyLocationEnabled(true);
 
         LatLng inicioRecorrido = new LatLng(listPuntos.get(1).getLatitud(), listPuntos.get(1).getLongitud());
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(inicioRecorrido, 13f));
@@ -134,10 +135,10 @@ public class Activity_map extends FragmentActivity implements OnMapReadyCallback
         createPolyline();
 
         mMap.addPolyline(polylineOptions);
+
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
             mMap.setMyLocationEnabled(true);
-
         }
 
         mMap.setOnInfoWindowCloseListener(new GoogleMap.OnInfoWindowCloseListener() {
@@ -156,26 +157,10 @@ public class Activity_map extends FragmentActivity implements OnMapReadyCallback
                     play.setVisibility(View.VISIBLE);
                     stop.setVisibility(View.VISIBLE);
 
-                    final MediaPlayer mp = MediaPlayer.create(getApplicationContext(), R.raw.papa_negro);
-                    play.setOnClickListener(new View.OnClickListener() {
-
-                        public void onClick(View v) {
-                            mp.create(getApplicationContext(), R.raw.papa_negro);
-                            mp.start();
-                        }
-                    });
-
-                    stop.setOnClickListener(new View.OnClickListener() {
-
-                        public void onClick(View v) {
-                            mp.pause();
-                        }
-                    });
+                    UtilMap.audiosDePrueba(marker, play, stop, getApplicationContext());
                 }
-
             }
         });
-
     }
 
     private void createPolyline() {
@@ -184,28 +169,10 @@ public class Activity_map extends FragmentActivity implements OnMapReadyCallback
 
         for (int i = 1; i < listPuntos.size() + 1; i++) {
             LatLng latLng = new LatLng(listPuntos.get(i).getLatitud(), listPuntos.get(i).getLongitud());
-            GroundOverlayOptions newarkMap = new GroundOverlayOptions()
-                    .image(BitmapDescriptorFactory.fromResource(R.drawable.fondo1))
-                    .anchor(0, 1)
-                    .transparency(0.5f)
-                    .position(latLng, 100f, 100f);
-
-
-            mMap.addGroundOverlay(newarkMap);
             polylineOptions.add(latLng);
             polylineOptions.visible(true);
-            MarkerOptions markerOptions = new MarkerOptions();
-            markerOptions.position(latLng);
-            markerOptions.title(listPuntos.get(i).getNombreLugar());
-            markerOptions.snippet(listPuntos.get(i).getDescLugar());
-            int idMarca = listPuntos.get(i).getIdMarca();
-            if (idMarca == 1) {
-                markerOptions.icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_directions_walk_black_36dp));
-            } else if (idMarca == 2) {
-                markerOptions.icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_beenhere_black_36dp));
-            }
-            mMap.addMarker(markerOptions);
-            //mMap.addMarker(new MarkerOptions().position(latLng).title(listPuntos.get(i).getNombreLugar()));
+
+            mMap.addMarker(UtilMap.createPolyLine(latLng, listPuntos, i, mMap));
         }
     }
 
@@ -218,9 +185,7 @@ public class Activity_map extends FragmentActivity implements OnMapReadyCallback
                 if (!list.isEmpty()) {
                     android.location.Address address = list.get(0);
                     Toast.makeText(getApplicationContext(), "Estoy en: \n" + address.getAddressLine(0), Toast.LENGTH_SHORT).show();
-
                 }
-
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -246,21 +211,21 @@ public class Activity_map extends FragmentActivity implements OnMapReadyCallback
                 mGoogleApiClient);
 
         if (mLastLocation == null) {
-            startLocationUpdates();
+            //startLocationUpdates();
         } else if (mLastLocation != null) {
+
             while (mLatitude == 0 || mLongitude == 0) {
                 Toast.makeText(getApplicationContext(), "Getting Location", Toast.LENGTH_SHORT).show();
 
                 setLocation(mLastLocation);
+                mLastLocation.setAccuracy(2000);
 
                 mLatitude = mLastLocation.getLatitude();
                 mLongitude = mLastLocation.getLongitude();
 
                 if (mLatitude != 0 && mLongitude != 0) {
 
-                    //onLocationChanged(mLastLocation);
-
-                    stopLocationUpdates();
+                    //stopLocationUpdates();
                 }
             }
         }
@@ -320,92 +285,92 @@ public class Activity_map extends FragmentActivity implements OnMapReadyCallback
     protected void startLocationUpdates() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
         }
+
         LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient,
-                mLocationRequest, this);
+                mLocationRequest, (com.google.android.gms.location.LocationListener) this);
     }
 
     protected void stopLocationUpdates() {
         LocationServices.FusedLocationApi.removeLocationUpdates(
-                mGoogleApiClient, this);
+                mGoogleApiClient, (com.google.android.gms.location.LocationListener) this);
     }
 
     @Override
     public void onLocationChanged(Location location) {
 
-        if (location.getLatitude() != 0 && location.getLongitude() != 0) {
-            try {
+        System.out.println("LATITUD NUEVA: "+location.getLatitude());
+        System.out.println("LONGITUD NUEVA: "+location.getLongitude());
 
-                String getDireccion = getDireccionActual(location);
+        LatLng latLng = new LatLng(location.getLatitude(),location.getLongitude());
 
-                if ("Román díaz 720".equalsIgnoreCase(getDireccion)) {
-                    Toast.makeText(Activity_map.this, "FUNCA LA GEOLOCALIZACION EN " + getDireccion, Toast.LENGTH_SHORT).show();
-                } else if ("Román díaz 647".equalsIgnoreCase(getDireccion)) {
-                    Toast.makeText(Activity_map.this, "FUNCA LA GEOLOCALIZACION EN " + getDireccion, Toast.LENGTH_SHORT).show();
+        /*LatLngBounds latLngBounds= toBounds(latLng, 1000);
+
+        if(!latLngBounds.contains(new LatLng(location.getLatitude(), location.getLongitude())))
+        {
+            //mMap.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(location.getLatitude(), location.getLongitude())));
+            mMap.addCircle(new CircleOptions()
+                    .visible(true)
+                .radius(500)
+                .center(new LatLng(location.getLatitude(), location.getLongitude()))
+                .strokeColor(Color.GREEN)
+                .strokeColor(Color.GREEN));
+
+
+        }*/
+
+        Location target = new Location("target");
+        for(int i=1; i<listPuntos.size() +1; i++) {
+            target.setLatitude(listPuntos.get(i).getLatitud());
+            target.setLongitude(listPuntos.get(i).getLongitud());
+                if(location.distanceTo(target) <= 20) {
+                Toast.makeText(getApplicationContext(),"A 20 metros de "+listPuntos.get(i).getNombreLugar(),Toast.LENGTH_SHORT).show();
+                    if(!mp.isPlaying()){
+                        System.out.println("ENTRA A REPRODUCIR");;
+                        mp = audiosDePruebaListener.pruebaDeAudio(new LatLng(target.getLatitude(), target.getLongitude()), hashPuntos, mp);
+                    }
+                    mp.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                        @Override
+                        public void onCompletion(MediaPlayer mp) {
+                            mp.stop();
+                        }
+                    });
+
                 }
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
         }
 
-        if (mCurrLocation != null) {
-            mCurrLocation.remove();
-        }
+
 
     }
 
-    private String getDireccionActual(Location location) {
-        android.location.Address address = null;
-        if (location.getLatitude() != 0.0 && location.getLongitude() != 0.0) {
-            try {
-                Geocoder geocoder = new Geocoder(this, Locale.getDefault());
-                List<android.location.Address> list = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
+    @Override
+    public void onStatusChanged(String provider, int status, Bundle extras) {
 
-                if (!list.isEmpty()) {
-                    address = list.get(0);
-                }
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            } finally {
-
-            }
-        }
-
-        return address.getAddressLine(0);
     }
 
-    private HashMap<Integer, Puntos> getPuntos(String nomRecorrido) {
+    @Override
+    public void onProviderEnabled(String provider) {
 
-        DataBaseHelper db = new DataBaseHelper(getApplicationContext());
-        SQLiteDatabase database = db.getWritableDatabase();
-        listPuntos = new HashMap<>();
-        String[] columns = {"POSICION",
-                "NOMBRE_LUGAR",
-                "DESCRIPCION_LUGAR",
-                "LATITUD",
-                "LONGITUD",
-                "ID_MARCA",
-                "NOMBRE_TIPO_MARCA"};
+    }
 
-        String where = "NOMBRE_RECORRIDO = \"" + nomRecorrido + "\"";
-        Cursor cursor = database.query("puntos_de_recorridos", columns, where, null, null, null, "POSICION");
+    @Override
+    public void onProviderDisabled(String provider) {
 
-        if (cursor != null) {
-            while (cursor.moveToNext()) {
-                Puntos puntos = new Puntos();
-                puntos.setPos(cursor.getInt(cursor.getColumnIndex("POSICION")));
-                puntos.setNombreLugar(cursor.getString(cursor.getColumnIndex("NOMBRE_LUGAR")));
-                puntos.setDescLugar(cursor.getString(cursor.getColumnIndex("DESCRIPCION_LUGAR")));
-                puntos.setLatitud(cursor.getDouble(cursor.getColumnIndex("LATITUD")));
-                puntos.setLongitud(cursor.getDouble(cursor.getColumnIndex("LONGITUD")));
-                puntos.setIdMarca(cursor.getInt(cursor.getColumnIndex("ID_MARCA")));
-                puntos.setNombreTmarca(cursor.getString(cursor.getColumnIndex("NOMBRE_TIPO_MARCA")));
-                listPuntos.put(puntos.getPos(), puntos);
-            }
+    }
+
+    public LatLngBounds toBounds(LatLng center, double radius) {
+        LatLng southwest = SphericalUtil.computeOffset(center, radius * Math.sqrt(2.0), 225);
+        LatLng northeast = SphericalUtil.computeOffset(center, radius * Math.sqrt(2.0), 45);
+        return new LatLngBounds(southwest, northeast);
+    }
+
+    private void createHashIdLatLng(){
+
+        hashPuntos = new HashMap<>();
+
+        for (int i=1; i<listPuntos.size() +1;i++){
+            hashPuntos.put(new LatLng(listPuntos.get(i).getLatitud(),listPuntos.get(i).getLongitud()), listPuntos.get(i));
         }
 
-        return listPuntos;
     }
 
 

@@ -65,7 +65,7 @@ public class FragmentExplora extends Fragment {
 
         if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
         }
-
+        googleMap.getUiSettings().setMyLocationButtonEnabled(true);
         googleMap.setMyLocationEnabled(true);
 
         googleMap.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
@@ -119,8 +119,8 @@ public class FragmentExplora extends Fragment {
                 "ID_MARCA",
                 "NOMBRE_TIPO_MARCA"};
 
-        String where = "NOMBRE_DESTINO = \"" + nomDestio + "\"";
-        Cursor cursor = database.query("destino_punto_interes", columns, where, null, null, null, null);
+        //String where = "NOMBRE_DESTINO = \"" + nomDestio + "\"";
+        Cursor cursor = database.query("destino_punto_interes", columns, null, null, null, null, null);
 
         if (cursor != null) {
             while (cursor.moveToNext()) {

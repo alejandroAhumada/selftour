@@ -32,9 +32,8 @@ public class FragmentRecorre extends Fragment {
         // Required empty public constructor
     }
 
-    CarouselView carouselView;
-
-    int[] sampleImages = {R.drawable.cajon1, R.drawable.cajon2, R.drawable.cajon3, R.drawable.cajon4};
+    private CarouselView carouselView;
+    private int[] sampleImages = {R.drawable.cajon1, R.drawable.cajon2, R.drawable.cajon3, R.drawable.cajon4};
 
     @Override
     public void onCreate(Bundle savedInstanceState) {

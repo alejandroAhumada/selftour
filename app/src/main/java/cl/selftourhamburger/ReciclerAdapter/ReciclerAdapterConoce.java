@@ -26,13 +26,15 @@ import cl.selftourhamburger.model.pojo.Puntos;
 public class ReciclerAdapterConoce extends RecyclerView.Adapter<ReciclerAdapterConoce.MyViewHolder> {
 
     private List<Puntos> listPuntos;
+    private Destino destino;
     private Context context;
     private SparseBooleanArray expandState = new SparseBooleanArray();
 
-    public ReciclerAdapterConoce(Context context, Destino items) {
+    public ReciclerAdapterConoce(Context context, Destino destino) {
         this.context = context;
-        this.listPuntos = items.getListaPuntos();
-        for (int i = 0; i < listPuntos.size(); i++) {
+        this.destino = destino;
+        this.listPuntos = destino.getListaPuntos();
+        for (int i = 0; i < destino.getListaPuntos().size(); i++) {
             expandState.append(i, false);
         }
     }
@@ -48,8 +50,8 @@ public class ReciclerAdapterConoce extends RecyclerView.Adapter<ReciclerAdapterC
     public void onBindViewHolder(final MyViewHolder itemsViewHolder, final int position) {
 
         final Puntos puntos = listPuntos.get(position);
-        itemsViewHolder.txtNombrePuntoDeInteres.setText(puntos.getNombreLugar());
-        itemsViewHolder.txtDescripcionPuntoDeInteres.setText(puntos.getDescLugar());
+        itemsViewHolder.txtNombrePuntoDeInteres.setText(destino.getListaPuntos().get(position).getNombreLugar());
+        itemsViewHolder.txtDescripcionPuntoDeInteres.setText(destino.getListaPuntos().get(position).getDescLugar());
         itemsViewHolder.expandableLayout.setExpanded(expandState.get(position));
         itemsViewHolder.expandableLayout.setInterpolator(Utils.createInterpolator(Utils.ACCELERATE_DECELERATE_INTERPOLATOR));
         itemsViewHolder.expandableLayout.setListener(new ExpandableLayoutListenerAdapter() {
@@ -82,7 +84,7 @@ public class ReciclerAdapterConoce extends RecyclerView.Adapter<ReciclerAdapterC
 
     @Override
     public int getItemCount() {
-        return listPuntos.size();
+        return destino.getListaPuntos().size();
     }
 
     public static class MyViewHolder extends RecyclerView.ViewHolder {
