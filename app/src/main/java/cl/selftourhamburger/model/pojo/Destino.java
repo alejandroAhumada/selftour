@@ -6,6 +6,7 @@ import java.util.List;
  * Created by Alejandro on 08-07-2016.
  */
 public class Destino {
+    int idDestino;
     String nombreDestino;
     String descripcionDelDestino;
     List<Puntos> listaPuntos;
@@ -13,10 +14,19 @@ public class Destino {
     public Destino() {
     }
 
-    public Destino(String nombreDestino, String descripcionDelDestino, List<Puntos> listaPuntos) {
+    public Destino(int idDestino, String nombreDestino, String descripcionDelDestino, List<Puntos> listaPuntos) {
+        this.idDestino = idDestino;
         this.nombreDestino = nombreDestino;
         this.descripcionDelDestino = descripcionDelDestino;
         this.listaPuntos = listaPuntos;
+    }
+
+    public int getIdDestino() {
+        return idDestino;
+    }
+
+    public void setIdDestino(int idDestino) {
+        this.idDestino = idDestino;
     }
 
     public List<Puntos> getListaPuntos() {

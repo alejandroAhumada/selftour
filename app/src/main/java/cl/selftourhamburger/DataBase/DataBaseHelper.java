@@ -24,6 +24,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
             "CREATE TABLE puntos_de_recorridos (\n" +
                     "\t\n" +
                     "\t\"ID_RECORRIDO\" INTEGER PRIMARY KEY AUTOINCREMENT,\n" +
+                    "\t\"ID_DESTINO\" INTEGER,\n" +
                     "\t\"NOMBRE_DESTINO\" VARCHAR(255),\n" +
                     "\t\"NOMBRE_RECORRIDO\" VARCHAR(255),\n" +
                     "\t\"DESCRIPCION_RECORRIDO\" VARCHAR(255),\n" +
@@ -62,6 +63,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
             "CREATE TABLE usuario_destino (\n" +
                     "\t\n" +
                     "\t\"NOMBRE_USUARIO\" VARCHAR(255),\n" +
+                    "\t\"ID_DESTINO\" INTEGER,\n" +
                     "\t\"NOMBRE_DESTINO\" VARCHAR(255)\n" +
                     ");\n";
 

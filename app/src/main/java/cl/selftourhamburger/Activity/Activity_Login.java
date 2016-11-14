@@ -41,8 +41,9 @@ import com.google.android.gms.plus.Plus;
 import com.google.android.gms.plus.model.people.Person;
 
 import java.io.InputStream;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import cl.selftourhamburger.DataBase.DataBaseHelper;
 import cl.selftourhamburger.R;
@@ -221,17 +222,24 @@ public class Activity_Login extends Activity implements View.OnClickListener,
         final Dialog dialog = new Dialog(this);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setContentView(R.layout.radiobutton_dialog);
-        List<String> listDestinos;
+        final HashMap<String, Integer> listDestinos;
 
         listDestinos = getListDestinos();
 
         final RadioGroup rg = (RadioGroup) dialog.findViewById(R.id.radio_group);
 
-        for (int i = 0; i < listDestinos.size(); i++) {
+        /*for (int i = 0; i < listDestinos.size(); i++) {
             RadioButton rb = new RadioButton(this); // dynamically creating RadioButton and adding to RadioGroup.
-            rb.setText(listDestinos.get(i));
+            rb.setText(listDestinos.get(i).getNombreDestino());
+            rg.addView(rb);
+        }*/
+
+        for (Map.Entry<String, Integer> entry : listDestinos.entrySet()) {
+            RadioButton rb = new RadioButton(this); // dynamically creating RadioButton and adding to RadioGroup.
+            rb.setText(entry.getKey());
             rg.addView(rb);
         }
+
         Toast.makeText(this, "Selecciones su Destino", Toast.LENGTH_SHORT).show();
         dialog.show();
 
@@ -246,7 +254,7 @@ public class Activity_Login extends Activity implements View.OnClickListener,
                         Log.e("selected RadioButton->", btn.getText().toString());
                         activity_login.setTitle(btn.getText().toString());
 
-                        guardarDestinoUsuario(btn.getText().toString());
+                        guardarDestinoUsuario(btn.getText().toString(), listDestinos);
 
                         new MaterialDialog.Builder(activity_login)
                                 .title("Conectado!!")
@@ -265,7 +273,7 @@ public class Activity_Login extends Activity implements View.OnClickListener,
 
     }
 
-    private void guardarDestinoUsuario(String destinoSeleccionado) {
+    private void guardarDestinoUsuario(String destinoSeleccionado, HashMap<String, Integer> listDestinos) {
         DataBaseHelper db = new DataBaseHelper(getApplicationContext());
         SQLiteDatabase database = db.getWritableDatabase();
 
@@ -274,6 +282,7 @@ public class Activity_Login extends Activity implements View.OnClickListener,
             database.beginTransaction();
 
             contentValues.put("NOMBRE_USUARIO", nombreUsuarioRegistrado);
+            contentValues.put("ID_DESTINO", listDestinos.get(destinoSeleccionado));
             contentValues.put("NOMBRE_DESTINO", destinoSeleccionado);
 
             database.insert("usuario_destino", null, contentValues);
@@ -289,19 +298,21 @@ public class Activity_Login extends Activity implements View.OnClickListener,
 
     }
 
-    private List<String> getListDestinos() {
+    private HashMap<String, Integer> getListDestinos() {
 
         DataBaseHelper db = new DataBaseHelper(getApplicationContext());
         SQLiteDatabase database = db.getWritableDatabase();
 
-        List<String> listDestinos = new ArrayList<>();
-        String[] columns = {"NOMBRE_DESTINO"};
+        HashMap<String, Integer> listDestinos = new HashMap<>();
+        String[] columns = {"ID_DESTINO","NOMBRE_DESTINO"};
 
-        Cursor cursor = database.query("destino_punto_interes", columns, null, null, "NOMBRE_DESTINO", null, null);
+        Cursor cursor = database.query("puntos_de_recorridos", columns, null, null, "NOMBRE_DESTINO", null, null);
 
         if (cursor != null) {
             while (cursor.moveToNext()) {
-                listDestinos.add(cursor.getString(cursor.getColumnIndex("NOMBRE_DESTINO")));
+                Integer idDestino= cursor.getInt(cursor.getColumnIndex("ID_DESTINO"));
+                String nombreDestino = cursor.getString(cursor.getColumnIndex("NOMBRE_DESTINO"));
+                listDestinos.put(nombreDestino, idDestino);
             }
         }
 
@@ -368,6 +379,8 @@ public class Activity_Login extends Activity implements View.OnClickListener,
                     ContentValues contentValues = new ContentValues();
                     database.beginTransaction();
 
+                    contentValues.put("ID_DESTINO", listRecorridos.get(i).getIdDestino());
+                    contentValues.put("NOMBRE_DESTINO", listRecorridos.get(i).getNombreDestino());
                     contentValues.put("NOMBRE_RECORRIDO", listRecorridos.get(i).getNombreRecorrido());
                     contentValues.put("DESCRIPCION_RECORRIDO", listRecorridos.get(i).getDescripcionRecorrido());
                     contentValues.put("DURACION", listRecorridos.get(i).getDuracion());

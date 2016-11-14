@@ -168,6 +168,8 @@ public class RestClient {
                 List<Puntos> puntosList = new ArrayList<>();
 
                 JSONObject objectRecorrido = array.getJSONObject(i);
+                recorrido.setIdDestino(objectRecorrido.getInt("idDestino"));
+                recorrido.setNombreDestino(objectRecorrido.getString("nombreDestino"));
                 recorrido.setNombreRecorrido(objectRecorrido.getString("nombreRecorrido"));
                 recorrido.setDescripcionRecorrido(objectRecorrido.getString("descripcionRecorrido"));
                 recorrido.setDuracion(objectRecorrido.getString("duracion"));

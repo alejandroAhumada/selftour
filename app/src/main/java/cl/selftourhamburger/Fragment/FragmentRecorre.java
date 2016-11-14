@@ -1,5 +1,7 @@
 package cl.selftourhamburger.Fragment;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
@@ -21,6 +23,7 @@ import java.util.List;
 import cl.selftourhamburger.DataBase.DataBaseHelper;
 import cl.selftourhamburger.R;
 import cl.selftourhamburger.ReciclerAdapter.ReciclerAdapterPantallaPrincipal;
+import cl.selftourhamburger.model.pojo.Destino;
 import cl.selftourhamburger.model.pojo.Recorrido;
 
 /**
@@ -32,12 +35,14 @@ public class FragmentRecorre extends Fragment {
         // Required empty public constructor
     }
 
+    private SharedPreferences sp;
     private CarouselView carouselView;
     private int[] sampleImages = {R.drawable.cajon1, R.drawable.cajon2, R.drawable.cajon3, R.drawable.cajon4};
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        sp = getContext().getSharedPreferences("cl.selftourhamburger", Context.MODE_MULTI_PROCESS);
     }
 
     @Override
@@ -67,10 +72,15 @@ public class FragmentRecorre extends Fragment {
         DataBaseHelper db = new DataBaseHelper(getContext());
         SQLiteDatabase database = db.getWritableDatabase();
 
+        String[] columnas = {"ID_DESTINO"};
+        String user = sp.getString("login_user", "Vacio");
+        int destinoSeleccionado = getDestinoSelecionado(user);
+
         List<Recorrido> listRecorrido = new ArrayList<>();
         String[] columns = {"NOMBRE_RECORRIDO", "DESCRIPCION_RECORRIDO", "DURACION"};
+        String where = "ID_DESTINO = "+destinoSeleccionado;
 
-        Cursor cursor = database.query("puntos_de_recorridos", columns, null, null, "NOMBRE_RECORRIDO", null, null);
+        Cursor cursor = database.query("puntos_de_recorridos", columns, where, null, "NOMBRE_RECORRIDO", null, null);
 
         if (cursor != null) {
             while (cursor.moveToNext()) {
@@ -95,5 +105,25 @@ public class FragmentRecorre extends Fragment {
             imageView.setImageResource(sampleImages[position]);
         }
     };
+
+    private int getDestinoSelecionado(String nombre) {
+
+        DataBaseHelper db = new DataBaseHelper(getContext());
+        SQLiteDatabase database = db.getWritableDatabase();
+        int destino = 0;
+        String[] column = {"ID_DESTINO"};
+
+        String where = "NOMBRE_USUARIO = " + "'" + nombre + "'";
+
+        Cursor cursor = database.query("usuario_destino", column, where, null, null, null, null);
+
+        if (cursor != null) {
+            while (cursor.moveToNext()) {
+                destino = cursor.getInt(cursor.getColumnIndex("ID_DESTINO"));
+            }
+        }
+
+        return destino;
+    }
 
 }

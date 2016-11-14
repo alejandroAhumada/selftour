@@ -8,6 +8,8 @@ import java.util.List;
  */
 public class Recorrido {
 
+    int idDestino;
+    String nombreDestino;
     String nombreRecorrido;
     String descripcionRecorrido;
     String duracion;
@@ -16,11 +18,20 @@ public class Recorrido {
     public Recorrido() {
     }
 
-    public Recorrido(String nombreRecorrido, String descripcionRecorrido, String duracion, List<Puntos> listPuntos) {
-        this.nombreRecorrido = nombreRecorrido;
-        this.descripcionRecorrido = descripcionRecorrido;
-        this.duracion = duracion;
-        this.listPuntos = listPuntos;
+    public int getIdDestino() {
+        return idDestino;
+    }
+
+    public void setIdDestino(int idDestino) {
+        this.idDestino = idDestino;
+    }
+
+    public String getNombreDestino() {
+        return nombreDestino;
+    }
+
+    public void setNombreDestino(String nombreDestino) {
+        this.nombreDestino = nombreDestino;
     }
 
     public String getNombreRecorrido() {
