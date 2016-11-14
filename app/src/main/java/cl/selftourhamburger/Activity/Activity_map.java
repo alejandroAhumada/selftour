@@ -215,8 +215,6 @@ public class Activity_map extends FragmentActivity implements OnMapReadyCallback
         } else if (mLastLocation != null) {
 
             while (mLatitude == 0 || mLongitude == 0) {
-                Toast.makeText(getApplicationContext(), "Getting Location", Toast.LENGTH_SHORT).show();
-
                 setLocation(mLastLocation);
                 mLastLocation.setAccuracy(2000);
 
@@ -300,23 +298,6 @@ public class Activity_map extends FragmentActivity implements OnMapReadyCallback
 
         System.out.println("LATITUD NUEVA: "+location.getLatitude());
         System.out.println("LONGITUD NUEVA: "+location.getLongitude());
-
-        LatLng latLng = new LatLng(location.getLatitude(),location.getLongitude());
-
-        /*LatLngBounds latLngBounds= toBounds(latLng, 1000);
-
-        if(!latLngBounds.contains(new LatLng(location.getLatitude(), location.getLongitude())))
-        {
-            //mMap.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(location.getLatitude(), location.getLongitude())));
-            mMap.addCircle(new CircleOptions()
-                    .visible(true)
-                .radius(500)
-                .center(new LatLng(location.getLatitude(), location.getLongitude()))
-                .strokeColor(Color.GREEN)
-                .strokeColor(Color.GREEN));
-
-
-        }*/
 
         Location target = new Location("target");
         for(int i=1; i<listPuntos.size() +1; i++) {

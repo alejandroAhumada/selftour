@@ -3,6 +3,7 @@ package cl.selftourhamburger.ReciclerAdapter;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -11,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.List;
 
@@ -25,10 +27,12 @@ public class ReciclerAdapterPantallaPrincipal extends RecyclerView.Adapter<Recic
 
     private List<Recorrido> items;
     private Context context;
+    protected LocationManager manager;
 
     public ReciclerAdapterPantallaPrincipal(Context context, List<Recorrido> items) {
         this.context = context;
         this.items = items;
+        manager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
     }
 
     @Override
@@ -44,12 +48,22 @@ public class ReciclerAdapterPantallaPrincipal extends RecyclerView.Adapter<Recic
 
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(context, Activity_map.class);
-                Bundle bundle = new Bundle();
-                bundle.putString("nomRecorrido", items.get(i).getNombreRecorrido());
+                boolean isGPSEnabled = manager.isProviderEnabled(LocationManager.GPS_PROVIDER);
 
-                intent.putExtras(bundle);
-                context.startActivity(intent);
+                if(isGPSEnabled){
+                    Intent intent = new Intent(context, Activity_map.class);
+                    Bundle bundle = new Bundle();
+                    bundle.putString("nomRecorrido", items.get(i).getNombreRecorrido());
+
+                    intent.putExtras(bundle);
+                    context.startActivity(intent);
+                }else{
+                    Intent gpsOptionsIntent = new Intent(
+                            android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                    Toast.makeText(context, "Favor Habilitar GPS", Toast.LENGTH_SHORT).show();
+                    context.startActivity(gpsOptionsIntent);
+                }
+
             }
         });
     }
