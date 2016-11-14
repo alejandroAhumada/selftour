@@ -1,11 +1,13 @@
 package cl.selftourhamburger.Activity;
 
 import android.app.Dialog;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
@@ -36,7 +38,9 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.plus.Plus;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import cl.selftourhamburger.DataBase.DataBaseHelper;
 import cl.selftourhamburger.Fragment.FragmentConoce;
@@ -63,6 +67,8 @@ public class Activity_Pantalla_Principal extends AppCompatActivity
     };
     private RestClient restClient;
     private Dialog dialog = null;
+    HashMap<String, Integer> listDestinos;
+    private Context context;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,6 +102,8 @@ public class Activity_Pantalla_Principal extends AppCompatActivity
         tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(viewPager);
         setupTabIcons();
+
+        this.context = this;
 
         //HASTA AQUI
         Toolbar toolbar = (Toolbar) findViewById(cl.selftourhamburger.R.id.toolbar);
@@ -313,15 +321,14 @@ public class Activity_Pantalla_Principal extends AppCompatActivity
         final Dialog dialog = new Dialog(this);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setContentView(R.layout.radiobutton_dialog);
-        List<String> listDestinos;
 
         listDestinos = getListDestinos();
 
         final RadioGroup rg = (RadioGroup) dialog.findViewById(R.id.radio_group);
 
-        for (int i = 0; i < listDestinos.size(); i++) {
+        for (Map.Entry<String, Integer> entry : listDestinos.entrySet()) {
             RadioButton rb = new RadioButton(this); // dynamically creating RadioButton and adding to RadioGroup.
-            rb.setText(listDestinos.get(i));
+            rb.setText(entry.getKey());
             rg.addView(rb);
         }
         Toast.makeText(this, "Selecciones su Destino", Toast.LENGTH_SHORT).show();
@@ -336,8 +343,17 @@ public class Activity_Pantalla_Principal extends AppCompatActivity
                     RadioButton btn = (RadioButton) group.getChildAt(x);
                     if (btn.getId() == checkedId) {
                         Log.e("selected RadioButton->", btn.getText().toString());
-                        activity_pantalla_principal.setTitle(btn.getText().toString());
+
+                        updateDestinoUsuario(btn.getText().toString(), listDestinos);
                         dialog.dismiss();
+                        System.out.println("CAMBIO DE DEST");
+
+                        Intent intent = new Intent(Activity_Pantalla_Principal.this, Activity_Cambio_Destino.class);
+                        intent.putExtra("destinoSeleccionado", btn.getText().toString());
+                        context.startActivity(intent);
+
+                        //activity_pantalla_principal.setTitle(btn.getText().toString());
+
                     }
                 }
             }
@@ -345,23 +361,52 @@ public class Activity_Pantalla_Principal extends AppCompatActivity
 
     }
 
-    private List<String> getListDestinos() {
+    private HashMap<String, Integer> getListDestinos() {
 
         DataBaseHelper db = new DataBaseHelper(getApplicationContext());
         SQLiteDatabase database = db.getWritableDatabase();
 
-        List<String> listDestinos = new ArrayList<>();
-        String[] columns = {"NOMBRE_DESTINO"};
+        HashMap<String, Integer> listDestinos = new HashMap<>();
+        String[] columns = {"ID_DESTINO","NOMBRE_DESTINO"};
 
-        Cursor cursor = database.query("destino_punto_interes", columns, null, null, "NOMBRE_DESTINO", null, null);
+        Cursor cursor = database.query("puntos_de_recorridos", columns, null, null, "NOMBRE_DESTINO", null, null);
 
         if (cursor != null) {
             while (cursor.moveToNext()) {
-                System.out.println("DESTINO: "+cursor.getString(cursor.getColumnIndex("NOMBRE_DESTINO")));
-                listDestinos.add(cursor.getString(cursor.getColumnIndex("NOMBRE_DESTINO")));
+                Integer idDestino= cursor.getInt(cursor.getColumnIndex("ID_DESTINO"));
+                String nombreDestino = cursor.getString(cursor.getColumnIndex("NOMBRE_DESTINO"));
+                listDestinos.put(nombreDestino, idDestino);
             }
         }
 
         return listDestinos;
+    }
+
+    private void updateDestinoUsuario(String destinoSeleccionado, HashMap<String, Integer> listDestinos) {
+        DataBaseHelper db = new DataBaseHelper(getApplicationContext());
+        SQLiteDatabase database = db.getWritableDatabase();
+
+        try {
+            ContentValues contentValues = new ContentValues();
+            database.beginTransaction();
+
+            String user = sp.getString("login_user", "Vacio");
+
+            contentValues.put("ID_DESTINO", listDestinos.get(destinoSeleccionado));
+            contentValues.put("NOMBRE_DESTINO", destinoSeleccionado);
+
+            String where = "NOMBRE_USUARIO = \""+user+"\"";
+
+            database.update("usuario_destino", contentValues, where, null);
+            database.setTransactionSuccessful();
+            database.endTransaction();
+
+        } catch (SQLiteException e) {
+            e.printStackTrace();
+        } finally {
+            db.close();
+            database.close();
+        }
+
     }
 }
