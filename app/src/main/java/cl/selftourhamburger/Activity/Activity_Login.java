@@ -1,5 +1,6 @@
 package cl.selftourhamburger.Activity;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.ContentValues;
@@ -7,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
@@ -15,6 +17,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
@@ -83,12 +86,12 @@ public class Activity_Login extends Activity implements View.OnClickListener,
 
         sp = getApplicationContext().getSharedPreferences("cl.selftourhamburger", Context.MODE_MULTI_PROCESS);
         boolean login = sp.getBoolean("login", false);
-        String user = sp.getString("login_user","Vacio");
+        String user = sp.getString("login_user", "Vacio");
         String destinoSeleccionado = getDestinoSelecionado(user);
 
         if (login) {
             Intent intent = new Intent(Activity_Login.this, Activity_Pantalla_Principal.class);
-            intent.putExtra("destinoSeleccionado",destinoSeleccionado);
+            intent.putExtra("destinoSeleccionado", destinoSeleccionado);
             startActivity(intent);
         }
 
@@ -168,9 +171,9 @@ public class Activity_Login extends Activity implements View.OnClickListener,
 
                     String destinoSeleccionado = getDestinoSelecionado(usuarioIngresado.getNombre());
 
-                    if(destinoSeleccionado == null){
+                    if (destinoSeleccionado == null) {
                         showRadioButtonDialog(Activity_Login.this);
-                    }else{
+                    } else {
                         new MaterialDialog.Builder(Activity_Login.this)
                                 .title("Conectado!!")
                                 .content("Dirigiendo a tu Destino")
@@ -178,7 +181,7 @@ public class Activity_Login extends Activity implements View.OnClickListener,
                                 .show();
 
                         Intent intent = new Intent(Activity_Login.this, Activity_Pantalla_Principal.class);
-                        intent.putExtra("destinoSeleccionado",destinoSeleccionado);
+                        intent.putExtra("destinoSeleccionado", destinoSeleccionado);
                         startActivity(intent);
                     }
                 }
@@ -192,9 +195,9 @@ public class Activity_Login extends Activity implements View.OnClickListener,
 
                     String destinoSeleccionado = getDestinoSelecionado(email);
 
-                    if(destinoSeleccionado == null){
+                    if (destinoSeleccionado == null) {
                         showRadioButtonDialog(Activity_Login.this);
-                    }else{
+                    } else {
                         new MaterialDialog.Builder(Activity_Login.this)
                                 .title("Conectado!!")
                                 .content("Dirigiendo a tu Destino")
@@ -202,7 +205,7 @@ public class Activity_Login extends Activity implements View.OnClickListener,
                                 .show();
 
                         Intent intent = new Intent(Activity_Login.this, Activity_Pantalla_Principal.class);
-                        intent.putExtra("destinoSeleccionado",destinoSeleccionado);
+                        intent.putExtra("destinoSeleccionado", destinoSeleccionado);
                         startActivity(intent);
                     }
                 }
@@ -246,16 +249,15 @@ public class Activity_Login extends Activity implements View.OnClickListener,
                         guardarDestinoUsuario(btn.getText().toString());
 
                         new MaterialDialog.Builder(activity_login)
-                                    .title("Conectado!!")
-                                    .content("Dirigiendo a tu Destino")
-                                    .progress(true, 0)
-                                    .show();
+                                .title("Conectado!!")
+                                .content("Dirigiendo a tu Destino")
+                                .progress(true, 0)
+                                .show();
 
-                            Intent intent = new Intent(Activity_Login.this, Activity_Pantalla_Principal.class);
-                            intent.putExtra("destinoSeleccionado",btn.getText().toString());
-                            startActivity(intent);
+                        Intent intent = new Intent(Activity_Login.this, Activity_Pantalla_Principal.class);
+                        intent.putExtra("destinoSeleccionado", btn.getText().toString());
+                        startActivity(intent);
 
-                        //dialog.dismiss();
                     }
                 }
             }
@@ -278,9 +280,9 @@ public class Activity_Login extends Activity implements View.OnClickListener,
             database.setTransactionSuccessful();
             database.endTransaction();
 
-        }catch (SQLiteException e){
+        } catch (SQLiteException e) {
             e.printStackTrace();
-        }finally {
+        } finally {
             db.close();
             database.close();
         }
@@ -295,7 +297,7 @@ public class Activity_Login extends Activity implements View.OnClickListener,
         List<String> listDestinos = new ArrayList<>();
         String[] columns = {"NOMBRE_DESTINO"};
 
-        Cursor cursor = database.query("destino_punto_interes", columns, null, null, "NOMBRE_DESTINO", null,null);
+        Cursor cursor = database.query("destino_punto_interes", columns, null, null, "NOMBRE_DESTINO", null, null);
 
         if (cursor != null) {
             while (cursor.moveToNext()) {
@@ -313,7 +315,7 @@ public class Activity_Login extends Activity implements View.OnClickListener,
         String destino = null;
         String[] column = {"NOMBRE_DESTINO"};
 
-        String where = "NOMBRE_USUARIO = "+"'"+nombre+"'";
+        String where = "NOMBRE_USUARIO = " + "'" + nombre + "'";
 
         Cursor cursor = database.query("usuario_destino", column, where, null, null, null, null);
 
@@ -505,6 +507,7 @@ public class Activity_Login extends Activity implements View.OnClickListener,
                 personName = currentPerson.getDisplayName();
                 personPhotoUrl = currentPerson.getImage().getUrl();
                 personGooglePlusProfile = currentPerson.getUrl();
+                if (ActivityCompat.checkSelfPermission(this, Manifest.permission.GET_ACCOUNTS) != PackageManager.PERMISSION_GRANTED) {}
                 email = Plus.AccountApi.getAccountName(mGoogleApiClient);
 
                 nombreUsuarioRegistrado = email;
@@ -516,9 +519,6 @@ public class Activity_Login extends Activity implements View.OnClickListener,
                 txtName.setText(personName);
                 txtEmail.setText(email);
 
-                // by default the profile url gives 50x50 px image only
-                // we can replace the value with whatever dimension we want by
-                // replacing sz=X
                 personPhotoUrl = personPhotoUrl.substring(0,
                         personPhotoUrl.length() - 2)
                         + PROFILE_PIC_SIZE;

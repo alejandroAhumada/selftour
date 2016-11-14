@@ -160,7 +160,7 @@ public class RestClient {
 
         List<Recorrido> listRecorrido = new ArrayList<>();
         try {
-
+            System.out.println("JSON HOY: "+sb.toString());
             JSONArray array = new JSONArray(sb.toString());
 
             for (int i = 0; i < array.length(); i++) {

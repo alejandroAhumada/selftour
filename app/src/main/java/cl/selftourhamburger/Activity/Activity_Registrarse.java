@@ -5,6 +5,7 @@ import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
@@ -13,7 +14,9 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.text.InputType;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
@@ -102,7 +105,7 @@ public class Activity_Registrarse extends Activity implements OnClickListener{
     }
 
     public void onClickRegistrarse(View view) {
-
+        StringBuilder vacio = new StringBuilder();
         switch (view.getId()) {
             case R.id.registrarse_enter:
 
@@ -115,22 +118,63 @@ public class Activity_Registrarse extends Activity implements OnClickListener{
                 EditText password = (EditText) findViewById(R.id.login_password);
                 EditText fechaNacimiento = (EditText) findViewById(R.id.login_fechaNacimiento);
 
+                String name = nombre.getText().toString();
+                String firstName = apellido.getText().toString();
+                String mails = mail.getText().toString();
+                String username = nombreUsuario.getText().toString();
+                String pass = password.getText().toString();
+                boolean mailValid = isValidEmail(mails);
+                String dateN = fechaNacimiento.getText().toString();
 
-                registroUsuario.setNombre(nombre.getText().toString());
-                registroUsuario.setApellido(apellido.getText().toString());
-                registroUsuario.setMail(mail.getText().toString());
-                registroUsuario.setNombreUsuario(nombreUsuario.getText().toString());
-                registroUsuario.setPassword(password.getText().toString());
-                registroUsuario.setFechaNacimiento(fechaNacimiento.getText().toString());
+                if(name.isEmpty()){
+                    vacio.append("-Nombre ");
+                }if(firstName.isEmpty()) {
+                    vacio.append("-Apellido");
+                }if(mails.isEmpty()) {
+                    vacio.append("-Mail");
+                }if(username.isEmpty()) {
+                    vacio.append("-Username");
+                }if(pass.isEmpty()) {
+                    vacio.append("-Password");
+                }if(dateN.isEmpty()) {
+                    vacio.append("-Fecha de Nacimiento");
+                }
+
+
+                registroUsuario.setNombre(name);
+                registroUsuario.setApellido(firstName);
+                registroUsuario.setMail(mails);
+                registroUsuario.setNombreUsuario(username);
+                registroUsuario.setPassword(pass);
+                registroUsuario.setFechaNacimiento(dateN);
                 registroUsuario.setNacionalidad(spinnerNacionalidades.getSelectedItemPosition());
                 registroUsuario.setGenero(spinnerGenero.getSelectedItem().toString());
 
-
-                new SigninTask().execute(registroUsuario);
+                if(vacio.toString().length() <= 0) {
+                    if (username.length() >= 6) {
+                        if (pass.length() >= 6) {
+                            if (mailValid) {
+                                new SigninTask().execute(registroUsuario);
+                            } else {
+                                Toast.makeText(getApplicationContext(), "Mail incorrecto", Toast.LENGTH_SHORT).show();
+                            }
+                        } else {
+                            Toast.makeText(getApplicationContext(), "Password debe tener mas de 6 caracteres", Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        Toast.makeText(getApplicationContext(), "Username debe tener mas de 6 caracteres", Toast.LENGTH_SHORT).show();
+                    }
+                }else{
+                    Toast.makeText(getApplicationContext(), "Favor Completar Todos Los Campos", Toast.LENGTH_SHORT).show();
+                }
 
                 break;
         }
 
+    }
+
+    private static boolean isValidEmail(String email) {
+        return !TextUtils.isEmpty(email) && android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches();
     }
 
     private SpinnerAdapter getSpinnerAdapterNacionalidad() {
