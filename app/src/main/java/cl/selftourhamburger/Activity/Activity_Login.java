@@ -49,6 +49,7 @@ import cl.selftourhamburger.DataBase.DataBaseHelper;
 import cl.selftourhamburger.R;
 import cl.selftourhamburger.RestClient.RestClient;
 import cl.selftourhamburger.Util.AlertUtils;
+import cl.selftourhamburger.Util.Seguridad;
 import cl.selftourhamburger.model.pojo.Recorrido;
 import cl.selftourhamburger.model.pojo.UsuarioIngresado;
 
@@ -127,7 +128,9 @@ public class Activity_Login extends Activity implements View.OnClickListener,
                 TextView user = (TextView) findViewById(cl.selftourhamburger.R.id.login_user);
                 TextView pass = (TextView) findViewById(cl.selftourhamburger.R.id.login_password);
 
-                new LoginTask().execute(user.getText().toString(), pass.getText().toString(), "selftour");
+                String password = Seguridad.md5(pass.getText().toString());
+
+                new LoginTask().execute(user.getText().toString(), password, "selftour");
                 break;
         }
     }
@@ -167,8 +170,6 @@ public class Activity_Login extends Activity implements View.OnClickListener,
 
                     AlertUtils.showErrorAlert(Activity_Login.this, "Error de Ingreso", "Credenciales Invalidas");
                 } else {
-
-                    Log.i("Activity_Login", "ActivityLogin OK...");
 
                     String destinoSeleccionado = getDestinoSelecionado(usuarioIngresado.getNombre());
 
@@ -227,12 +228,6 @@ public class Activity_Login extends Activity implements View.OnClickListener,
         listDestinos = getListDestinos();
 
         final RadioGroup rg = (RadioGroup) dialog.findViewById(R.id.radio_group);
-
-        /*for (int i = 0; i < listDestinos.size(); i++) {
-            RadioButton rb = new RadioButton(this); // dynamically creating RadioButton and adding to RadioGroup.
-            rb.setText(listDestinos.get(i).getNombreDestino());
-            rg.addView(rb);
-        }*/
 
         for (Map.Entry<String, Integer> entry : listDestinos.entrySet()) {
             RadioButton rb = new RadioButton(this); // dynamically creating RadioButton and adding to RadioGroup.
