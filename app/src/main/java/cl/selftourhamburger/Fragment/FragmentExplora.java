@@ -119,8 +119,8 @@ public class FragmentExplora extends Fragment {
                 "ID_MARCA",
                 "NOMBRE_TIPO_MARCA"};
 
-        //String where = "NOMBRE_DESTINO = \"" + nomDestio + "\"";
-        Cursor cursor = database.query("destino_punto_interes", columns, null, null, null, null, null);
+        String where = "NOMBRE_DESTINO = \"" + nomDestio + "\"";
+        Cursor cursor = database.query("destino_punto_interes", columns, where, null, null, null, null);
 
         if (cursor != null) {
             while (cursor.moveToNext()) {
