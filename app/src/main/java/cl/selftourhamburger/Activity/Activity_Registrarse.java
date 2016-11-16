@@ -33,6 +33,7 @@ import android.widget.Toast;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -155,7 +156,11 @@ public class Activity_Registrarse extends Activity implements OnClickListener{
                     if (username.length() >= 6) {
                         if (pass.length() >= 6) {
                             if (mailValid) {
-                                new SigninTask().execute(registroUsuario);
+                                if(mayorDeEdad(dateN)){
+                                    new SigninTask().execute(registroUsuario);
+                                }else{
+                                    Toast.makeText(getApplicationContext(), "Solo para mayores de 12 años.", Toast.LENGTH_SHORT).show();
+                                }
                             } else {
                                 Toast.makeText(getApplicationContext(), "Mail incorrecto", Toast.LENGTH_SHORT).show();
                             }
@@ -492,4 +497,34 @@ public class Activity_Registrarse extends Activity implements OnClickListener{
 
         return listDestinos;
     }
+
+    private boolean mayorDeEdad(String fecha){
+        Date fechaNac=null;
+        boolean mayorDeEdad = false;
+        try {
+            fechaNac = new SimpleDateFormat("yyyy-MM-dd").parse(fecha);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        Calendar fechaNacimiento = Calendar.getInstance();
+        Calendar fechaActual = Calendar.getInstance();
+        fechaNacimiento.setTime(fechaNac);
+
+        int año = fechaActual.get(Calendar.YEAR)- fechaNacimiento.get(Calendar.YEAR);
+        int mes =fechaActual.get(Calendar.MONTH)- fechaNacimiento.get(Calendar.MONTH);
+        int dia = fechaActual.get(Calendar.DATE)- fechaNacimiento.get(Calendar.DATE);
+
+        if(mes<0 || (mes==0 && dia<0)){
+            año--;
+        }
+
+        if (año >= 12){
+            mayorDeEdad = true;
+        }
+
+        System.out.println("EDAD: "+año);
+
+        return mayorDeEdad;
+    }
+
 }

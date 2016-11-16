@@ -1,12 +1,13 @@
 package cl.selftourhamburger.ReciclerAdapter;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ExpandableListView;
+import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -16,6 +17,7 @@ import com.github.aakira.expandablelayout.Utils;
 
 import java.util.List;
 
+import cl.selftourhamburger.Activity.Activity_Oferta;
 import cl.selftourhamburger.R;
 import cl.selftourhamburger.model.pojo.Destino;
 import cl.selftourhamburger.model.pojo.Puntos;
@@ -51,9 +53,10 @@ public class ReciclerAdapterConoce extends RecyclerView.Adapter<ReciclerAdapterC
 
         final Puntos puntos = listPuntos.get(position);
         itemsViewHolder.txtNombrePuntoDeInteres.setText(destino.getListaPuntos().get(position).getNombreLugar());
-        itemsViewHolder.txtDescripcionPuntoDeInteres.setText(destino.getListaPuntos().get(position).getDescLugar());
+        itemsViewHolder.btnOferta.setText("Ver Productos");
         itemsViewHolder.expandableLayout.setExpanded(expandState.get(position));
         itemsViewHolder.expandableLayout.setInterpolator(Utils.createInterpolator(Utils.ACCELERATE_DECELERATE_INTERPOLATOR));
+        itemsViewHolder.expandableLayout.setExpanded(false);
         itemsViewHolder.expandableLayout.setListener(new ExpandableLayoutListenerAdapter() {
             @Override
             public void onPreOpen() {
@@ -75,6 +78,15 @@ public class ReciclerAdapterConoce extends RecyclerView.Adapter<ReciclerAdapterC
             }
         });
 
+        itemsViewHolder.btnOferta.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(context, Activity_Oferta.class);
+                intent.putExtra("punto",destino.getListaPuntos().get(position).getNombreLugar());
+                context.startActivity(intent);
+            }
+        });
+
     }
 
 
@@ -90,7 +102,7 @@ public class ReciclerAdapterConoce extends RecyclerView.Adapter<ReciclerAdapterC
     public static class MyViewHolder extends RecyclerView.ViewHolder {
 
         public TextView txtNombrePuntoDeInteres;
-        public TextView txtDescripcionPuntoDeInteres;
+        public Button btnOferta;
         public ExpandableLayout expandableLayout;
         public RelativeLayout layoutPrincipal;
 
@@ -98,7 +110,7 @@ public class ReciclerAdapterConoce extends RecyclerView.Adapter<ReciclerAdapterC
             super(v);
             expandableLayout = (ExpandableLayout) v.findViewById(R.id.expandableLayout);
             txtNombrePuntoDeInteres = (TextView) v.findViewById(R.id.txtNombrePuntoDeInteres);
-            txtDescripcionPuntoDeInteres = (TextView) v.findViewById(R.id.txtDescripcionPuntoInteres);
+            btnOferta = (Button) v.findViewById(R.id.btnOferta);
             layoutPrincipal = (RelativeLayout) v.findViewById(R.id.layout_principal);
         }
     }

@@ -10,21 +10,23 @@
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/colorLogoSelfTour">
+        android:background="@color/colorAccent">
 
         <TextView
             android:id="@+id/txtNombrePuntoDeInteres"
             android:layout_width="match_parent"
             android:layout_height="90dp"
             android:textAlignment="center"
-            android:gravity="center"/>
+            android:gravity="center"
+
+            android:textSize="15dp"/>
 
     </RelativeLayout>
 
     <com.github.aakira.expandablelayout.ExpandableRelativeLayout
         android:id="@+id/expandableLayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="70dp"
         android:layout_below="@id/layout_principal"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
@@ -32,13 +34,16 @@
         app:ael_duration="400"
         app:ael_orientation="vertical">
 
-            <TextView
-                android:id="@+id/txtDescripcionPuntoInteres"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="asdasdasd"
+            <Button
+                android:id="@+id/btnOferta"
+                android:layout_width="150dp"
+                android:layout_height="40dp"
+                android:text="oferta"
+                android:layout_centerHorizontal="true"
+                android:layout_centerVertical="true"
                 android:textAlignment="center"
-                android:gravity="center" />
+                android:gravity="center"
+                android:background="@color/colorLogoSelfTour"/>
 
 
         </com.github.aakira.expandablelayout.ExpandableRelativeLayout>

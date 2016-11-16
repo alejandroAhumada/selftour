@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorWhite"
+    tools:context=".Activity.Activity_Oferta">
+
+    <RelativeLayout
+        android:id="@+id/RLimagenOferta"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp">
+
+        <ImageView
+            android:id="@+id/imagenOferta"
+            android:layout_width="match_parent"
+            android:layout_height="180dp"/>
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/RLdescOferta"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/RLimagenOferta"
+        android:layout_marginTop="25dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp">
+
+        <TextView
+            android:id="@+id/descOferta"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:text="Donde Augusto es un tradicional restaurante de Santiago de Chile, ubicado dentro del Mercado Central. Esta marisquería está especializada en pescados y mariscos del Mar Chileno. Las porciones son abundantes e incluyen también algunas preparaciones con carne, como el bife a lo pobre."
+            android:textAlignment="textStart"
+            android:textAllCaps="true"
+            android:elegantTextHeight="true"/>
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/lyt_btns"
+        android:layout_width="wrap_content"
+        android:layout_height="55dp"
+        android:layout_alignParentBottom="true"
+        android:background="@color/colorLogoSelfTour">
+
+        <Button
+            android:id="@+id/btnComprar"
+            android:layout_width="match_parent"
+            android:layout_height="55dp"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentBottom="true"
+            android:text="Comprar"
+            android:textAlignment="center"
+            android:gravity="center"
+            android:background="@color/colorLogoSelfTour"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:layout_toLeftOf="@+id/view"/>
+
+        <View
+            android:id="@+id/view"
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:layout_below="@+id/LytRecycler"
+            android:background="#000000"
+            android:layout_centerHorizontal="true"/>
+
+        <Button
+            android:id="@+id/btnCancelarCompra"
+            android:layout_width="wrap_content"
+            android:layout_height="55dp"
+            android:layout_alignParentRight="true"
+            android:text="Cancelar"
+            android:textColor="#ffffff"
+            android:textAlignment="center"
+            android:gravity="center"
+            android:layout_alignParentBottom="true"
+            android:background="#4b5356"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/view"/>
+
+    </RelativeLayout>
+
+
+</RelativeLayout>
