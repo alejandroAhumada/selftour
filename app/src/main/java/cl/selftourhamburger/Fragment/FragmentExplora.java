@@ -152,11 +152,11 @@ public class FragmentExplora extends Fragment {
             markerOptions.title(listPuntos.get(i).getNombreLugar());
             //markerOptions.snippet(listPuntos.get(i).getDescLugar());
             int idMarca = listPuntos.get(i).getIdMarca();
-            if (idMarca == 1) {
+            /*if (idMarca == 1) {
                 markerOptions.icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_directions_walk_black_36dp));
             } else if (idMarca == 2) {
                 markerOptions.icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_beenhere_black_36dp));
-            }
+            }*/
 
 
 
