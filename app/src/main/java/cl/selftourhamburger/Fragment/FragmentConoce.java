@@ -18,6 +18,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import cl.selftourhamburger.DataBase.DataBaseHelper;
@@ -32,6 +33,7 @@ import cl.selftourhamburger.model.pojo.Puntos;
 public class FragmentConoce extends Fragment {
 
     private SharedPreferences sp;
+    private HashMap<String,Boolean> listaOfertas;
 
     public FragmentConoce() {
         // Required empty public constructor
@@ -103,6 +105,9 @@ public class FragmentConoce extends Fragment {
 
         destino.setListaPuntos(listPuntos);
 
+        destino = getOferta(destino);
+
+
         return destino;
     }
 
@@ -124,6 +129,31 @@ public class FragmentConoce extends Fragment {
         }
 
         return destino;
+    }
+
+    private Destino getOferta(Destino destino){
+        List<Puntos> listPuntos = new ArrayList<>();
+        Destino destinoActual = destino;
+
+        for(int i=0; i<destino.getListaPuntos().size(); i++){
+            System.out.println("ENTRO A CHECK: "+destino.getListaPuntos().get(i).getNombreLugar());
+            listaOfertas = new HashMap<>();
+
+            listaOfertas.put("Muelle Pratt",true);
+            listaOfertas.put("La Piojera",true);
+            listaOfertas.put("La Sebastiana",true);
+
+            if(listaOfertas.containsKey(destino.getListaPuntos().get(i).getNombreLugar())){
+                System.out.println("SE AGREGÓ: "+destino.getListaPuntos().get(i).getNombreLugar());
+                Puntos puntos = destino.getListaPuntos().get(i);
+                listPuntos.add(puntos);
+            }
+        }
+
+        destinoActual.setListaPuntos(listPuntos);
+
+        return destinoActual;
+
     }
 
 

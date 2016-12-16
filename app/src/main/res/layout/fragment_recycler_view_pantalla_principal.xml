@@ -43,43 +43,8 @@
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp"
                 android:fontFamily="sans-serif-condensed"/>
+
         </RelativeLayout>
-
-        <!--<RelativeLayout
-            android:id="@+id/inferiorIcon"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:layout_below="@+id/resumenRecorrido"
-            android:layout_toRightOf="@+id/LytimageRecycler">
-
-            &lt;!&ndash;<ImageView
-                android:id="@+id/iconLike"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:layout_marginLeft="40dp"
-                android:background="@mipmap/ic_favorite_white_24dp" />
-
-            <TextView
-                android:id="@+id/cantLike"
-                android:layout_width="wrap_content"
-                android:layout_height="50dp"
-                android:layout_centerHorizontal="true"
-                android:layout_centerVertical="true"
-                android:layout_marginTop="20dp"
-                android:layout_toRightOf="@+id/iconLike"
-                android:text="200" />&ndash;&gt;
-
-            &lt;!&ndash;<Button
-                android:id="@+id/btn_map"
-                android:layout_width="120dp"
-                android:layout_height="50dp"
-                android:layout_alignParentRight="true"
-                android:layout_marginRight="40dp"
-                android:text="GO"
-                android:shadowRadius="50"
-                android:onClick="onClickMapa"/>&ndash;&gt;
-
-        </RelativeLayout>-->
 
     </RelativeLayout>
 

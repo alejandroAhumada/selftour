@@ -223,4 +223,148 @@ public class UtilOferta {
         return oferta;
     }
 
+    public static String getNombreProducto(String punto){
+        String nombreProducto;
+        switch (punto) {
+            case "Municipalidad de Valparaiso":
+                return nombreProducto = "";
+
+            case "Muelle Pratt":
+                return nombreProducto = "Siente la brisa marina de Valparaíso";
+
+            case "Plaza Soto Mayor":
+                return nombreProducto = "";
+
+            case "Reloj Turri":
+                return nombreProducto = "";
+
+            case "Cerro Alegre":
+                return nombreProducto = "";
+
+            case "Camara de Comercio":
+                return nombreProducto = "";
+
+            case "Parque Cultural de Valparaiso":
+                return nombreProducto = "";
+
+            case "La Sebastiana":
+                return nombreProducto = "Encantate con mil poemas de amor";
+
+            case "Plaza de Armas de Santiago de Chile":
+                return nombreProducto = "";
+
+            case "Catedral de Santiago":
+                return nombreProducto = "";
+
+            case "La Piojera":
+                return nombreProducto = "Conoce el chile popular junto a tus amigos";
+
+            case "Mercado Central":
+                return nombreProducto = "";
+
+            case "Parque Forestal":
+                return nombreProducto = "";
+
+            case "Museo Bellas Artes":
+                return nombreProducto = "";
+
+            case "Cerro Santa Lucia":
+                return nombreProducto = "";
+
+            case "Centro cultural Gabriela Mistral":
+                return nombreProducto = "";
+
+            case "Plaza Italia":
+                return nombreProducto = "";
+
+            case "Parque forestal- Fuente alemana":
+                return nombreProducto = "";
+
+            case "Barrio Patronato":
+                return nombreProducto = "";
+
+            case "La Vega":
+                return nombreProducto = "";
+
+            case "Centro Cultural Estación Mapocho":
+                return nombreProducto = "";
+
+            default:
+                nombreProducto = "";
+        }
+        return nombreProducto;
+    }
+
+    public static String getDescripcionProducto(String punto){
+        String nombreProducto;
+        switch (punto) {
+            case "Municipalidad de Valparaiso":
+                return nombreProducto = "";
+
+            case "Muelle Pratt":
+                return nombreProducto = "Paseo en lancha por la costa de valparaiso";
+
+            case "Plaza Soto Mayor":
+                return nombreProducto = "";
+
+            case "Reloj Turri":
+                return nombreProducto = "";
+
+            case "La Piojera":
+                return nombreProducto = "Entrada a fiesta costumbrista fin de semana";
+
+            case "Cerro Alegre":
+                return nombreProducto = "";
+
+            case "Camara de Comercio":
+                return nombreProducto = "";
+
+            case "Parque Cultural de Valparaiso":
+                return nombreProducto = "";
+
+            case "La Sebastiana":
+                return nombreProducto = "Entrada a museo historico, casa la sebastiana";
+
+            case "Plaza de Armas de Santiago de Chile":
+                return nombreProducto = "";
+
+            case "Catedral de Santiago":
+                return nombreProducto = "";
+
+            case "Mercado Central":
+                return nombreProducto = "";
+
+            case "Parque Forestal":
+                return nombreProducto = "";
+
+            case "Museo Bellas Artes":
+                return nombreProducto = "";
+
+            case "Cerro Santa Lucia":
+                return nombreProducto = "";
+
+            case "Centro cultural Gabriela Mistral":
+                return nombreProducto = "";
+
+            case "Plaza Italia":
+                return nombreProducto = "";
+
+            case "Parque forestal- Fuente alemana":
+                return nombreProducto = "";
+
+            case "Barrio Patronato":
+                return nombreProducto = "";
+
+            case "La Vega":
+                return nombreProducto = "";
+
+            case "Centro Cultural Estación Mapocho":
+                return nombreProducto = "";
+
+            default:
+                nombreProducto = "";
+        }
+        return nombreProducto;
+    }
+
 }

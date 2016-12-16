@@ -2,6 +2,7 @@ package cl.selftourhamburger.Fragment;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -12,6 +13,8 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -21,6 +24,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.GroundOverlayOptions;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 
@@ -28,8 +32,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import cl.selftourhamburger.Activity.Activity_Oferta;
 import cl.selftourhamburger.DataBase.DataBaseHelper;
 import cl.selftourhamburger.R;
+import cl.selftourhamburger.Util.UtilMap;
 import cl.selftourhamburger.model.pojo.Puntos;
 
 /**
@@ -79,8 +85,32 @@ public class FragmentExplora extends Fragment {
         String user = sp.getString("login_user","Vacio");
         String destinoSeleccionado = getDestinoSelecionado(user);
 
-
         listPuntos = getPuntos(destinoSeleccionado);
+
+        googleMap.setOnInfoWindowCloseListener(new GoogleMap.OnInfoWindowCloseListener() {
+            @Override
+            public void onInfoWindowClose(Marker marker) {
+
+
+
+            }
+        });
+
+        googleMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+            @Override
+            public void onInfoWindowClick(Marker marker) {
+
+                if(marker.isInfoWindowShown()){
+
+                    Intent intent = new Intent(getContext(), Activity_Oferta.class);
+                    intent.putExtra("punto",marker.getTitle());
+                    getContext().startActivity(intent);
+                }
+            }
+        });
+
+
+
 
         createPolyline();
 
@@ -150,15 +180,8 @@ public class FragmentExplora extends Fragment {
             MarkerOptions markerOptions = new MarkerOptions();
             markerOptions.position(latLng);
             markerOptions.title(listPuntos.get(i).getNombreLugar());
-            //markerOptions.snippet(listPuntos.get(i).getDescLugar());
+
             int idMarca = listPuntos.get(i).getIdMarca();
-            /*if (idMarca == 1) {
-                markerOptions.icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_directions_walk_black_36dp));
-            } else if (idMarca == 2) {
-                markerOptions.icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_beenhere_black_36dp));
-            }*/
-
-
 
             CameraPosition cameraPosition = new CameraPosition.Builder()
                     .target(latLng).zoom(10).build();
@@ -166,7 +189,7 @@ public class FragmentExplora extends Fragment {
                     .newCameraPosition(cameraPosition));
 
             googleMap.addMarker(markerOptions);
-            //mMap.addMarker(new MarkerOptions().position(latLng).title(listPuntos.get(i).getNombreLugar()));
+
         }
     }
 

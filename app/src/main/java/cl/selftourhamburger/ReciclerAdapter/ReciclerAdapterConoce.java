@@ -2,12 +2,15 @@ package cl.selftourhamburger.ReciclerAdapter;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
+import android.graphics.drawable.Drawable;
 import android.support.v7.widget.RecyclerView;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -15,10 +18,13 @@ import com.github.aakira.expandablelayout.ExpandableLayout;
 import com.github.aakira.expandablelayout.ExpandableLayoutListenerAdapter;
 import com.github.aakira.expandablelayout.Utils;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import cl.selftourhamburger.Activity.Activity_Oferta;
 import cl.selftourhamburger.R;
+import cl.selftourhamburger.Util.UtilOferta;
 import cl.selftourhamburger.model.pojo.Destino;
 import cl.selftourhamburger.model.pojo.Puntos;
 
@@ -27,18 +33,15 @@ import cl.selftourhamburger.model.pojo.Puntos;
  */
 public class ReciclerAdapterConoce extends RecyclerView.Adapter<ReciclerAdapterConoce.MyViewHolder> {
 
-    private List<Puntos> listPuntos;
     private Destino destino;
     private Context context;
-    private SparseBooleanArray expandState = new SparseBooleanArray();
 
     public ReciclerAdapterConoce(Context context, Destino destino) {
         this.context = context;
         this.destino = destino;
-        this.listPuntos = destino.getListaPuntos();
-        for (int i = 0; i < destino.getListaPuntos().size(); i++) {
-            expandState.append(i, false);
-        }
+
+
+
     }
 
     @Override
@@ -50,39 +53,15 @@ public class ReciclerAdapterConoce extends RecyclerView.Adapter<ReciclerAdapterC
 
     @Override
     public void onBindViewHolder(final MyViewHolder itemsViewHolder, final int position) {
-
-        final Puntos puntos = listPuntos.get(position);
-        itemsViewHolder.txtNombrePuntoDeInteres.setText(destino.getListaPuntos().get(position).getNombreLugar());
-        itemsViewHolder.btnOferta.setText("Ver Productos");
-        itemsViewHolder.expandableLayout.setExpanded(expandState.get(position));
-        itemsViewHolder.expandableLayout.setInterpolator(Utils.createInterpolator(Utils.ACCELERATE_DECELERATE_INTERPOLATOR));
-        itemsViewHolder.expandableLayout.setExpanded(false);
-        itemsViewHolder.expandableLayout.setListener(new ExpandableLayoutListenerAdapter() {
-            @Override
-            public void onPreOpen() {
-                expandState.put(position, true);
-            }
-
-            @Override
-            public void onPreClose() {
-                expandState.put(position, false);
-            }
-
-        });
-
-
-        itemsViewHolder.txtNombrePuntoDeInteres.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(final View v) {
-                onClickButton(itemsViewHolder.expandableLayout);
-            }
-        });
+        itemsViewHolder.rlConoce.setBackground(setImageView(destino.getListaPuntos().get(position).getNombreLugar()));
+        itemsViewHolder.txtNombreProducto.setText(UtilOferta.getNombreProducto(destino.getListaPuntos().get(position).getNombreLugar()));
+        itemsViewHolder.txtDescProducto.setText(UtilOferta.getDescripcionProducto(destino.getListaPuntos().get(position).getNombreLugar()));
 
         itemsViewHolder.btnOferta.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(context, Activity_Oferta.class);
-                intent.putExtra("punto",destino.getListaPuntos().get(position).getNombreLugar());
+                intent.putExtra("punto", destino.getListaPuntos().get(position).getNombreLugar());
                 context.startActivity(intent);
             }
         });
@@ -94,6 +73,22 @@ public class ReciclerAdapterConoce extends RecyclerView.Adapter<ReciclerAdapterC
         expandableLayout.toggle();
     }
 
+    private Drawable setImageView(String punto){
+        Drawable res = null;
+        try {
+            String puntoSinEspacio = punto.replace("-","").replace("ó","o").replace(" ", "").toLowerCase();
+            String uri = "@drawable/" + puntoSinEspacio;
+
+            int imageResource = context.getResources().getIdentifier(uri, null, context.getPackageName());
+
+            res = context.getResources().getDrawable(imageResource);
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return res;
+    }
+
     @Override
     public int getItemCount() {
         return destino.getListaPuntos().size();
@@ -101,17 +96,17 @@ public class ReciclerAdapterConoce extends RecyclerView.Adapter<ReciclerAdapterC
 
     public static class MyViewHolder extends RecyclerView.ViewHolder {
 
-        public TextView txtNombrePuntoDeInteres;
+        public TextView txtNombreProducto;
+        public TextView txtDescProducto;
         public Button btnOferta;
-        public ExpandableLayout expandableLayout;
-        public RelativeLayout layoutPrincipal;
+        public RelativeLayout rlConoce;
 
         public MyViewHolder(View v) {
             super(v);
-            expandableLayout = (ExpandableLayout) v.findViewById(R.id.expandableLayout);
-            txtNombrePuntoDeInteres = (TextView) v.findViewById(R.id.txtNombrePuntoDeInteres);
+            txtNombreProducto = (TextView) v.findViewById(R.id.nombreProducto);
+            txtDescProducto = (TextView) v.findViewById(R.id.descProducto);
             btnOferta = (Button) v.findViewById(R.id.btnOferta);
-            layoutPrincipal = (RelativeLayout) v.findViewById(R.id.layout_principal);
+            rlConoce = (RelativeLayout) v.findViewById(R.id.rlconoce);
         }
     }
 
